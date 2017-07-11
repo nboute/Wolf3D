@@ -9,11 +9,11 @@ void	printbox(int val)
 	else if (val == 1)
 		printf("\x1b[35m%C", 0x2579);
 	else if (val == 2)
-		printf("\x1b[35m%C", 0x257E);
+		printf("\x1b[35m%C", 0x2578);
 	else if (val == 3)
 		printf("\x1b[35m%C", 0x251B);
 	else if (val == 4)
-		printf("\x1b[35m%C", 0x257C);
+		printf("\x1b[35m%C", 0x257A);
 	else if (val == 5)
 		printf("\x1b[35m%C", 0x2517);
 	else if (val == 6)
@@ -46,7 +46,7 @@ int		main(void)
 	while (i < 16)
 	{
 		printbox(i);
-		printf("\n%d|%d|%d|%d\n", (i % 16) / 8, (i % 8) / 4, (i % 8) / 2, i % 8);
+		printf("\n-Y:%d|-X:%d|X:%d|Y:%d\n", i % 2, (i % 4) / 2, (i % 8) / 4, i / 8);
 		i++;
 	}
 }

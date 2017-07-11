@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/07 10:52:16 by nboute            #+#    #+#             */
-/*   Updated: 2017/07/10 20:02:09 by nboute           ###   ########.fr       */
+/*   Updated: 2017/07/11 19:10:54 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,13 @@ int		***gen_text(void)
 	int	***textures;
 	int	i;
 
-	textures = (int***)malloc(sizeof(int**) * 8);
+	textures = (int***)malloc(sizeof(int**) * 14);
 		x = 0;
 	i = 0;
 	while (i < 8)
 	{
 		textures[i] = (int**)malloc(sizeof(int*) * 64);
+		x = 0;
 		while (x < 64)
 		{
 			y = 0;
@@ -58,12 +59,15 @@ int		***gen_text(void)
 					textures[i][x][y] = 65536 * ycolor;
 				else if (i == 7)
 					textures[i][x][y] = 128 + 256 * 128 + 65536 * 128;
+				else
+					textures[i][x][y] = 65536 * (i - 8) * 32 + 256 * x * 4 + y * 4;
 				y++;
 			}
 			x++;
 		}
 		i++;
 	}
+	ft_putstr("textures loaded\n");
 	return (textures);
 }
 
@@ -125,6 +129,22 @@ int		key_pressed(int key, void *ptr)
 		system("clear");
 		print_grid(mlx->map, (int)mlx->vectors->posX, (int)mlx->vectors->posY);
 	}
+	else if (key == 14)
+	{
+		int	x, y;
+		x = 0;
+		while (x < mlx->map->width && mlx->map->map[x][y] != 3)
+		{
+			y = 0;
+			while (y < mlx->map->height && mlx->map->map[x][y] != 3)
+			{
+			y++;
+			}
+			x++;
+		}
+		mlx->vectors->posX = x + 0.5;
+		mlx->vectors->posY = y + 0.5;
+	}
 	return (0);
 }
 
@@ -153,7 +173,7 @@ void	ft_move(t_mlx *mlx)
 	if (k[0].pressed && !k[1].pressed)
 	{
 		if (v->posX + val[0] >= 0 && (int)(v->posX + val[0]) < mlx->map->width)
-			if (mlx->map->map[(int)(v->posX + val[0])][(int)v->posY] == 0)
+			if (mlx->map->map[(int)(v->posX + val[0])][(int)v->posY] == 0 || mlx->map->map[(int)(v->posX + val[0])][(int)v->posY] == 3)
 				v->posX += val[0];
 		if (v->posY + val[1] >= 0 && (int)(v->posY + val[1]) < mlx->map->width)
 			if (mlx->map->map[(int)v->posX][(int)(v->posY + val[1])] == 0)
@@ -162,7 +182,7 @@ void	ft_move(t_mlx *mlx)
 	if (k[1].pressed && !k[0].pressed)
 	{
 		if (v->posX - val[0] >= 0 && (int)(v->posX - val[0]) < mlx->map->width)
-			if (mlx->map->map[(int)(v->posX - val[0])][(int)v->posY] == 0)
+			if (mlx->map->map[(int)(v->posX - val[0])][(int)v->posY] == 0 || mlx->map->map[(int)(v->posX + val[0])][(int)v->posY] == 3)
 				v->posX -= val[0];
 		if (v->posY - val[1] >= 0 && (int)(v->posY - val[1]) < mlx->map->height)
 			if (mlx->map->map[(int)v->posX][(int)(v->posY - val[1])] == 0)
@@ -188,7 +208,6 @@ int		raycast(t_mlx *mlx)
 		mlx_destroy_image(mlx->mlx, mlx->img);
 	mlx->img = mlx_new_image(mlx->mlx, mlx->width, mlx->height);
 	mlx->data = mlx_get_data_addr(mlx->img, &mlx->bpx, &mlx->size, &mlx->endian);
-	mlx->textures = gen_text();
 	while (x < mlx->width)
 	{
 		v->camX = ft_dmap(x, mlx->width, -1, 1);
@@ -236,7 +255,7 @@ int		raycast(t_mlx *mlx)
 				v->mapY += v->stepY;
 				side = 1;
 			}
-			if (mlx->map->map[v->mapX][v->mapY])
+			if (mlx->map->map[v->mapX][v->mapY] && mlx->map->map[v->mapX][v->mapY] != 3)
 				hit = 1;
 		}
 		if (side == 0)
@@ -252,9 +271,24 @@ int		raycast(t_mlx *mlx)
 			drawend = mlx->height - 1;
 		if (drawend >= mlx->height)
 			drawend = mlx->height - 1;
-//		int texNum = mlx->map->map[v->mapX][v->mapY];
+		double	wallX;
+		int texNum;
+		if (side == 0)
+		{
+			texNum = 0 + 2 * (v->raydirX > 0);
+			wallX = v->rayposY + v->perpwalldist * v->raydirY;
+		}
+		else
+		{
+			texNum = 1 + 2 * (v->raydirY > 0);
+			wallX = v->rayposX + v->perpwalldist * v->raydirX;
+		}
+		wallX -= floor(wallX);
+		int	texX;
+		texX = (int)(wallX * (double)64);
+		texX = 64 - texX - 1;
 		int	color;
-	int	val = 0;
+	/*
 	if (mlx->map->map[v->mapX][v->mapY])
 	{
 		val = 1;
@@ -283,17 +317,58 @@ int		raycast(t_mlx *mlx)
 					 break;
 			default : color = 0x0000FFFF;
 					  break;
-		}
+		}*/
 		int	i;
-		if (drawstart < drawend)
-		{
 			i = drawstart;
 			while (i < drawend)
 			{
+				int	d = i * 256 - mlx->height * 128 + lineH * 128;
+				int	texY = ((d * 64) / lineH) / 256;
+				color = mlx->textures[texNum][texX][texY];
+				if (side == 1)
+					color = (color >> 1) & 8355711;
 				ft_place_pixel(color, x, i, mlx);
 				i++;
 			}
-		}
+			double floorXWall, floorYWall;
+			if (side == 0 && v->raydirX > 0)
+			{
+				floorXWall = v->mapX;
+				floorYWall = v->mapY + wallX;
+			}
+			else if (side == 0 && v->raydirX < 0)
+			{
+				floorXWall = v->mapX + 1.0;
+				floorYWall = v->mapY + wallX;
+			}
+			else if (side == 1 && v->raydirY > 0)
+			{
+				floorXWall = v->mapX + wallX;
+				floorYWall = v->mapY;
+			}
+			else
+			{
+				floorXWall = v->mapX + wallX;
+				floorYWall = v->mapY + 1.0;
+			}
+			double distWall, distPlayer, currentDist;
+			distWall = v->perpwalldist;
+			distPlayer = 0.0;
+			if (drawend < 0)
+				drawend = mlx->height;
+			i = drawend + 1;
+			while (i < mlx->height)
+			{
+			currentDist = mlx->height / (2.0 * i - mlx->height);
+			double	weight = (currentDist - distPlayer) / (distWall - distPlayer);
+			double	currentfloorX = weight * floorXWall + (1.0 - weight) * v->posX;
+			double	currentfloorY = weight * floorYWall + (1.0 - weight) * v->posY;
+			int	floortexX, floortexY;
+			floortexX = (int)(currentfloorX * 64) % 64;
+			floortexY = (int)(currentfloorY * 64) % 64;
+			ft_place_pixel(((mlx->textures[3][floortexX][floortexY] >> 1) & 8355711), x, i, mlx);
+				i++;
+			}
 		x++;
 	}
 	mlx_put_image_to_window(mlx->mlx, mlx->win, mlx->img, 0, 0);
@@ -305,6 +380,7 @@ int	loop(void *ptr)
 	t_mlx *mlx;
 
 	mlx = (t_mlx*)ptr;
+	printf("%p\n", mlx->win);
 	ft_move(mlx);
 	raycast(mlx);
 	return (0);
@@ -315,35 +391,29 @@ int	loop(void *ptr)
 int	main(void)
 {
 	t_mlx mlx;
-/*
-	if (!(mlx = (t_mlx*)malloc(sizeof(t_mlx*))))
-		return (-1);
-		*/	
-	t_map *maze;
+
+	t_map maze;
 
 	setlocale(LC_ALL, "");
-	printf("a\n");
-	if (!(maze = (t_map*)malloc(sizeof(t_map))))
-		return (0);
-	maze->height = 64;
-	maze->width = 64;
-	mazegen(maze, maze->height, 4);
-	mlx.map = maze;
+	maze.height = 64;
+	maze.width = 64;
+	mazegen(&maze, maze.height, 4);
+	mlx.map = &maze;
+	mlx.textures = gen_text();
 /*	mlx.map->maphei = 64;
 	mlx.map->mapwid = 64;
 	if (!(mlx.map->map = (char**)malloc(sizeof(char*) * (mlx.map->maphei + 1))))
 		return (-1);
 */	if (!(mlx.vectors = (t_vects*)malloc(sizeof(t_vects))))
 		return (-1);
-	mlx.vectors->posX = mlx.map->startx;
-	mlx.vectors->posY = mlx.map->starty;
+	mlx.vectors->posX = mlx.map->startx + 0.5;
+	mlx.vectors->posY = mlx.map->starty + 0.5;
 	mlx.vectors->dirX = -1;
 	mlx.vectors->dirY = 0;
 	mlx.vectors->planeX = 0;
 	mlx.vectors->planeY = 0.66;
 	if (!(mlx.keys = (t_keys*)malloc(sizeof(t_keys) * 4)))
 		return (-1);
-	printf("a\n");
 	mlx.keys[0].key = KEY_UP;
 	mlx.keys[1].key = KEY_DOWN;
 	mlx.keys[2].key = KEY_LEFT;
@@ -377,7 +447,6 @@ int	main(void)
 	mlx.movespeed = 0.05;
 	mlx.rotspeed = 0.05;
 //	mlx.map->map[x] = NULL;
-	printf("a\n");
 	mlx_hook(mlx.win, 2, 1L<<0, key_pressed, &mlx);
 	mlx_hook(mlx.win, 3, 1L<<1, key_released, &mlx);
 	mlx_loop_hook(mlx.mlx, loop, &mlx);

@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/07 10:45:11 by nboute            #+#    #+#             */
-/*   Updated: 2017/07/10 19:31:29 by nboute           ###   ########.fr       */
+/*   Updated: 2017/07/11 15:18:53 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,8 @@ typedef struct	s_map
 	char		**map;
 	int			width;
 	int			height;
-	int			startx;
-	int			starty;
+	double		startx;
+	double		starty;
 	int			out;
 }				t_map;
 
