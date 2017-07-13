@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/07 10:45:11 by nboute            #+#    #+#             */
-/*   Updated: 2017/07/11 15:18:53 by nboute           ###   ########.fr       */
+/*   Updated: 2017/07/13 14:45:56 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "../minilibx_macos/mlx.h"
 # include "../libft/libft.h"
+# include <pthread.h>
 # define KEY_UP 126
 # define KEY_DOWN 125
 # define KEY_LEFT 123
@@ -25,19 +26,30 @@ typedef struct	s_keys
 	short		pressed;
 }				t_keys;
 
-typedef struct	s_vects
+typedef struct	s_thread
+{
+	int			id;
+	void		*data;
+	pthread_t	thread;
+}				t_thread;
+
+typedef struct	s_cam
 {
 	double		posX;
 	double		posY;
 	double		planeX;
 	double		planeY;
+	double		dirX;
+	double		dirY;
+}				t_cam;
+
+typedef struct	s_vects
+{
 	double		camX;
 	double		rayposX;
 	double		rayposY;
 	double		raydirX;
 	double		raydirY;
-	double		dirX;
-	double		dirY;
 	int			mapX;
 	int			mapY;
 	double		sidedistY;
@@ -69,11 +81,12 @@ typedef struct	s_mlx
 	char		*data;
 	int			bpx;
 	int			size;
-	int			endian;
+	int			end;
 	t_map		*map;
 	int			mapwid;
 	int			maphei;
-	t_vects		*vectors;
+	t_vects		vectors[8];
+	t_cam		cam;
 	t_keys		*keys;
 	int			***textures;
 	double		movespeed;
@@ -82,5 +95,6 @@ typedef struct	s_mlx
 
 t_map	*mazegen(t_map *maze, int	size, int out);
 int		print_grid(t_map *maze, int mx, int my);
+int		**bmp_to_array(char *name, int width, int height);
 
 #endif

@@ -6,7 +6,7 @@
 #    By: nboute <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/01/04 20:02:22 by nboute            #+#    #+#              #
-#    Updated: 2017/07/10 17:39:05 by nboute           ###   ########.fr        #
+#    Updated: 2017/07/13 14:47:38 by nboute           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,7 +35,8 @@ CC = gcc
 C_DIR = src/
 
 SRCS = raycasting_basics.c \
-	   maze.c
+	   maze.c \
+	   loadbmp.c
 
 SRC = $(addprefix $(C_DIR), $(SRCS))
 

@@ -6,7 +6,7 @@
 /*   Bx: nboute <marviny42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/08 18:55:12 bx nboute            #+#    #+#             */
-/*   Updated: 2017/07/11 18:07:27 by nboute           ###   ########.fr       */
+/*   Updated: 2017/07/11 20:14:50 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ int		print_grid(t_map *maze, int mx, int my)
 			}
 			else if (maze->map[x][y] == 2)
 				printf("\x1b[31m%C", 0x254B);
-			else if (maze->map[x][y] == 3)
+			else if (maze->map[x][y] == -1)
 				printf("\x1b[31m%C", 0x2574);
 			else
 				printf(" ");
@@ -153,7 +153,7 @@ void	create_exit(char **maze, int h_w, int out)
 		y = (rnd % 2) * (h_w - out) + 1;
 		while (y != h_w - 1 && y != out)
 		{
-			maze[y][(rnd / 4) * 2 + out] = 3;
+			maze[y][(rnd / 4) * 2 + out] = -1;
 			y++;
 		}
 	}
@@ -162,7 +162,7 @@ void	create_exit(char **maze, int h_w, int out)
 		x = (rnd % 2) * (h_w - out) + 1;
 		while (x != h_w - 1 && x != out)
 		{
-			maze[(rnd / 4) * 2 + out][x] = 3;
+			maze[(rnd / 4) * 2 + out][x] = -1;
 			x++;
 		}
 	}
