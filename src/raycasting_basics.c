@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/07 10:52:16 by nboute            #+#    #+#             */
-/*   Updated: 2017/07/13 15:52:16 by nboute           ###   ########.fr       */
+/*   Updated: 2017/07/13 20:36:05 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,11 @@ int		***gen_text(void)
 
 	textures = (int***)malloc(sizeof(int**) * 14);
 	x = 0;
-	i = 1;
-	textures[0] = bmp_to_array("./brickwall.bmp", 64, 64);
+	i = 4;
+	textures[0] = bmp_to_array("./brickwall_dark.bmp", 64, 64);
+	textures[1] = bmp_to_array("./brickfloor_v2.bmp", 64, 64);
+	textures[2] = bmp_to_array("./brickwall_lamp.bmp", 64, 64);
+	textures[3] = bmp_to_array("./barrel.bmp", 64, 64);
 	while (i < 14)
 	{
 		textures[i] = (int**)malloc(sizeof(int*) * 64);
@@ -314,7 +317,10 @@ void		*raycast(void	*data)
 			//texNum = 1 + 2 * (v->raydirY > 0);
 			wallX = v->rayposX + v->perpwalldist * v->raydirX;
 		}
-		texNum = 0;
+		if (!(v->mapX % 5) && !(v->mapY % 5))
+			texNum = 2;
+		else
+			texNum = 0;
 		wallX -= floor(wallX);
 		int	texX;
 		texX = (int)(wallX * (double)64);
@@ -399,7 +405,7 @@ void		*raycast(void	*data)
 			floortexX = (int)(currentfloorX * 64) % 64;
 			floortexY = (int)(currentfloorY * 64) % 64;
 			if (mlx->map->map[(int)currentfloorX][(int)currentfloorY] == 0)
-				ft_place_pixel(((mlx->textures[3][floortexX][floortexY] >> 1) & 8355711), x, i, mlx);
+				ft_place_pixel(((mlx->textures[1][floortexX][floortexY] >> 1) & 8355711), x, i, mlx);
 			else
 				ft_place_pixel(((mlx->textures[6][floortexX][floortexY] >> 1) & 8355711), x, i, mlx);
 			i++;
