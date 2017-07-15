@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/12 15:11:00 by nboute            #+#    #+#             */
-/*   Updated: 2017/07/13 15:51:40 by nboute           ###   ########.fr       */
+/*   Updated: 2017/07/15 17:42:05 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ int		**bmp_to_array(char *name, int width, int height)
 	free(buff);
 	width = 64;
 	height = 64;
+	printf("\n%s\n", name);
 	while (x && i < inf.imgsize)
 	{
 		x--;
@@ -78,18 +79,9 @@ int		**bmp_to_array(char *name, int width, int height)
 		while (y < inf.height)
 		{
 			texture[y][x] = (buff[y * 3] + (buff[y * 3 + 1] << 8) + (buff[y * 3 + 2] << 16)) & 0x00FFFFFF;
-			printf("%#X ", texture[x][y]);
+			printf("%#X ", texture[y][x]);
 			y++;
 		}
-		printf("\n|%d|%d|%d|\n", x, ret, inf.bits / 8);
-//		while (x < inf.width)
-//		{
-//			texture[y][x] = 65536 * 
-//			i = inf.bits;
-//			while (i)
-//			{
-//				
-//			}
 		i += inf.width;
 	}
 	ret = read(fd, buff, inf.width * inf.bits / 8);

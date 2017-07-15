@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/07 10:52:16 by nboute            #+#    #+#             */
-/*   Updated: 2017/07/13 20:36:05 by nboute           ###   ########.fr       */
+/*   Updated: 2017/07/15 20:56:10 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,47 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <pthread.h>
+
+typedef struct	s_sprite
+{
+	double		x;
+	double		y;
+	int			texture;
+}				t_sprite;
+
+# define numSprites 19
+
+t_sprite g_sprite[numSprites] =
+{
+	{31.5, 32.5, 10}, //green light in front of playerstart
+//	green lights in every room
+	{18.5, 4.5, 10},
+	{10.5, 4.5, 10},
+	{10.5, 12.5, 10},
+	{4.5, 6.5, 10},
+	{4.5, 20.5, 10},
+	{4.5, 14.5, 10},
+	{14.5, 20.5, 10},
+
+	//row of pillars in front of wall: fisheye test
+	{18.5, 10.5, 9},
+	{18.5, 12.5, 9},
+	{18.5, 14.5, 9},
+
+	//some barrels around the map
+	{21.5, 2.5, 8},
+	{16.5, 32.5, 8},
+	{16.0, 32.8, 8},
+	{16.2, 32.2, 8},
+	{4.5,  2.5, 8},
+	{10.5, 16.5, 8},
+	{10.0, 16.1, 8},
+	{10.5, 14.8, 8},
+};
+
+double	zbuff[1000];
+int		spriteorder[numSprites];
+double	spriteDistance[numSprites];
 
 void			ft_place_pixel(int color, int x, int y, t_mlx *mlx)
 {
@@ -69,11 +110,13 @@ int		***gen_text(void)
 
 	textures = (int***)malloc(sizeof(int**) * 14);
 	x = 0;
-	i = 4;
+	i = 3;
 	textures[0] = bmp_to_array("./brickwall_dark.bmp", 64, 64);
-	textures[1] = bmp_to_array("./brickfloor_v2.bmp", 64, 64);
+	textures[1] = bmp_to_array("./red_dall.bmp", 64, 64);
 	textures[2] = bmp_to_array("./brickwall_lamp.bmp", 64, 64);
-	textures[3] = bmp_to_array("./barrel.bmp", 64, 64);
+	textures[8] = bmp_to_array("./barrel.bmp", 64, 64);
+	textures[9] = bmp_to_array("./wolf_pillar.bmp", 64, 64);
+	textures[10] = bmp_to_array("./greenlight.bmp", 64, 64);
 	while (i < 14)
 	{
 		textures[i] = (int**)malloc(sizeof(int*) * 64);
@@ -89,7 +132,10 @@ int		***gen_text(void)
 			}
 			x++;
 		}
-		i++;
+		if (i == 7)
+			i = 11;
+		else
+			i++;
 	}
 	return (textures);
 }
@@ -195,27 +241,30 @@ void	ft_move(t_mlx *mlx)
 	t_vects	*v;
 	t_keys	*k;
 	double	val[2];
+	double	hbx[2];
 
 	v = mlx->vectors;
 	k = mlx->keys;
+	hbx[0] = (double)mlx->cam.dirX / 10;
+	hbx[1] = (double)mlx->cam.dirY / 10;
 	val[0] = mlx->cam.dirX * mlx->movespeed;
 	val[1] = mlx->cam.dirY * mlx->movespeed;
 	if (k[0].pressed && !k[1].pressed)
 	{
-		if (mlx->cam.posX + val[0] >= 0 && (int)(mlx->cam.posX + val[0]) < mlx->map->width)
-			if (mlx->map->map[(int)(mlx->cam.posX + val[0])][(int)mlx->cam.posY] == 0 || mlx->map->map[(int)(mlx->cam.posX + val[0])][(int)mlx->cam.posY] == -1)
+		if (mlx->cam.posX + val[0] + hbx[0] >= 0 && (int)(mlx->cam.posX + val[0] + hbx[0]) < mlx->map->width)
+			if (mlx->map->map[(int)(mlx->cam.posX + val[0] + hbx[0])][(int)mlx->cam.posY] <= 0)
 				mlx->cam.posX += val[0];
-		if (mlx->cam.posY + val[1] >= 0 && (int)(mlx->cam.posY + val[1]) < mlx->map->width)
-			if (mlx->map->map[(int)mlx->cam.posX][(int)(mlx->cam.posY + val[1])] == 0 || mlx->map->map[(int)mlx->cam.posX][(int)(mlx->cam.posY + val[1])] == -1)
+		if (mlx->cam.posY + val[1] + hbx[1] >= 0 && (int)(mlx->cam.posY + val[1] + hbx[1]) < mlx->map->width)
+			if (mlx->map->map[(int)mlx->cam.posX][(int)(mlx->cam.posY + val[1] + hbx[1])] <= 0)
 				mlx->cam.posY += val[1];
 	}
 	if (k[1].pressed && !k[0].pressed)
 	{
-		if (mlx->cam.posX - val[0] >= 0 && (int)(mlx->cam.posX - val[0]) < mlx->map->width)
-			if (mlx->map->map[(int)(mlx->cam.posX - val[0])][(int)mlx->cam.posY] == 0 || mlx->map->map[(int)(mlx->cam.posX - val[0])][(int)mlx->cam.posY] == -1)
+		if (mlx->cam.posX - val[0] - hbx[1] >= 0 && (int)(mlx->cam.posX - val[0] - hbx[0]) < mlx->map->width)
+			if (mlx->map->map[(int)(mlx->cam.posX - val[0] - hbx[0])][(int)mlx->cam.posY] <= 0)
 				mlx->cam.posX -= val[0];
-		if (mlx->cam.posY - val[1] >= 0 && (int)(mlx->cam.posY - val[1]) < mlx->map->height)
-			if (mlx->map->map[(int)mlx->cam.posX][(int)(mlx->cam.posY - val[1])] == 0 || mlx->map->map[(int)mlx->cam.posX][(int)(mlx->cam.posY - val[1])] == -1)
+		if (mlx->cam.posY - val[1] - hbx[1] >= 0 && (int)(mlx->cam.posY - val[1] - hbx[1]) < mlx->map->height)
+			if (mlx->map->map[(int)mlx->cam.posX][(int)(mlx->cam.posY - val[1] - hbx[1])] <= 0)
 				mlx->cam.posY -= val[1];
 	}
 	if (k[2].pressed && !k[3].pressed)
@@ -228,6 +277,35 @@ void	ft_move(t_mlx *mlx)
 	}
 }
 
+void	ft_combsort(int *order, double *dist, int amount)
+{
+	int		gap;
+	short	swap;
+	int		i;
+
+	gap = amount;
+	swap = 1;
+	while (gap > 1 || swap)
+	{
+		gap = (gap * 10) / 13;
+		if (gap == 9 || gap == 10)
+			gap = 11;
+		if (gap < 1)
+			gap = 1;
+		swap = 0;
+		i = 0;
+		while (i < amount - gap)
+		{
+			if (dist[i] < dist[i + gap])
+			{
+				ft_swap(dist + i, dist + i + gap, sizeof(double));
+				ft_swap(order + i, order + i + gap, sizeof(int));
+				swap = 0;
+			}
+			i++;
+		}
+	}
+}
 
 void		*raycast(void	*data)
 {
@@ -237,8 +315,8 @@ void		*raycast(void	*data)
 	int		i;
 
 	mlx = (t_mlx*)data;
-//	mlx = ((t_thread*)data)->data;
-//	x = ((t_thread*)data)->id;
+	//	mlx = ((t_thread*)data)->data;
+	//	x = ((t_thread*)data)->id;
 	v = &mlx->vectors[0]/*[x]*/;
 	x = /*(x * mlx->width / 8)*/0;
 	i = /*x + */mlx->width/* / 8*/;
@@ -368,6 +446,7 @@ void		*raycast(void	*data)
 			ft_place_pixel(color, x, i, mlx);
 			i++;
 		}
+		zbuff[x] = v->perpwalldist;
 		double floorXWall, floorYWall;
 		if (side == 0 && v->raydirX > 0)
 		{
@@ -412,6 +491,69 @@ void		*raycast(void	*data)
 		}
 		x++;
 	}
+	i = 0;
+	while (i < numSprites)
+	{
+		spriteorder[i] = i;
+		spriteDistance[i] = ((mlx->cam.posX - g_sprite[i].x) *
+				(mlx->cam.posX - g_sprite[i].x) + (mlx->cam.posY -
+					g_sprite[i].y) * (mlx->cam.posY - g_sprite[i].y));
+		i++;
+	}
+	ft_combsort(spriteorder, spriteDistance, numSprites);
+	i = 0;
+	while (i < numSprites)
+	{
+		double	spriteX = g_sprite[spriteorder[i]].x - mlx->cam.posX;
+		double	spriteY = g_sprite[spriteorder[i]].y - mlx->cam.posY;
+		double invDet = 1.0 / (mlx->cam.planeX * mlx->cam.dirY
+				- mlx->cam.dirX * mlx->cam.planeY);
+		double	transfX;
+		double	transfY;
+		transfX = invDet * (mlx->cam.dirY * spriteX - mlx->cam.dirX * spriteY);
+		transfY = invDet * (-mlx->cam.planeY * spriteX + mlx->cam.planeX * spriteY);
+		int	spritescreenX = (int)((mlx->width / 2) * (1 + transfX / transfY));
+		int	spriteHeight = abs((int)(mlx->height / transfY));
+		int	drawstartY = -spriteHeight / 2 + mlx->height / 2;
+		if (drawstartY < 0)
+			drawstartY = 0;
+		int	drawendY = spriteHeight / 2 + mlx->height / 2;
+		if (drawendY >= mlx->height)
+			drawendY = mlx->height - 1;
+		if (drawendY < 0)
+			drawendY = 0;
+		int	spriteWidth = abs((int)(mlx->width / transfY));
+		int	drawstartX = -spriteWidth / 2 + spritescreenX;
+		if (drawstartX < 0)
+			drawstartX = 0;
+		int	drawendX = spriteWidth / 2 + spritescreenX;
+		if (drawendX >= mlx->width)
+			drawendX = mlx->width - 1;
+		if (drawendX < 0)
+			drawendX = 0;
+		x = drawstartX;
+		while (x < drawendX)
+		{
+			int	texX = (int)(256 * (x - (-spriteWidth / 2 + spritescreenX)) * 64 / spriteWidth) / 256;
+			if (transfY > 0 && x > 0 && x < mlx->width && transfY < zbuff[x])
+			{
+				int	y = drawstartY;
+				while (y < drawendY)
+				{
+					int texY = (((y * 256 - mlx->height * 128 + spriteHeight * 128)
+							* 64) / spriteHeight) / 256;
+					if (texY < 0)
+						texY = 0;
+					int color = mlx->textures[g_sprite[spriteorder[i]].texture][texX][texY];
+					if ((color & 0x00FFFFFF) != 0)
+						ft_place_pixel(color, x, y, mlx);
+					y++;
+				}
+			}
+			x++;
+		}
+		i++;
+	}
 	return (NULL);
 }
 
@@ -421,23 +563,23 @@ void	ft_threads(t_mlx *mlx)
 		mlx_destroy_image(mlx->mlx, mlx->img);
 	mlx->img = mlx_new_image(mlx->mlx, mlx->width, mlx->height);
 	mlx->data = mlx_get_data_addr(mlx->img, &mlx->bpx, &mlx->size, &mlx->end);
-/*	t_thread	t[8];
-	int			i;
-	int			ret;
+	/*	t_thread	t[8];
+		int			i;
+		int			ret;
 
-	i = 0;
-	ret = 0;
-	while (i < 8 && !ret)
-	{
+		i = 0;
+		ret = 0;
+		while (i < 8 && !ret)
+		{
 		t[i].id = i;
 		t[i].data = mlx;
 		ret = pthread_create(&t[i].thread, NULL, raycast, (void*)(&t[i]));
 		i++;
-	}
-	if (ret)
+		}
+		if (ret)
 		exit(-1);
-	i = 0;
-	while (i < 8)
+		i = 0;
+		while (i < 8)
 		pthread_join(t[i++].thread, NULL);*/
 	raycast(mlx);
 	mlx_put_image_to_window(mlx->mlx, mlx->win, mlx->img, 0, 0);
@@ -448,7 +590,6 @@ int	loop(void *ptr)
 	t_mlx *mlx;
 
 	mlx = (t_mlx*)ptr;
-	printf("%lf|%lf\n", mlx->cam.posX, mlx->cam.posY);
 	ft_move(mlx);
 	ft_threads(mlx);
 	//	raycast(mlx);

@@ -6,7 +6,7 @@
 /*   Bx: nboute <marviny42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/08 18:55:12 bx nboute            #+#    #+#             */
-/*   Updated: 2017/07/11 20:14:50 by nboute           ###   ########.fr       */
+/*   Updated: 2017/07/15 19:21:05 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,6 +191,7 @@ t_map	*mazegen(t_map *maze, int	size, int out)
 	maze->startx = (size / 2) + (size / 2) % 2;
 	maze->starty = maze->startx;
 	create_maze(maze, (int)maze->startx + (int)(maze->starty) * size, 0, 0);
+	maze->map[31][32] = 0;
 	create_exit(maze->map, size, out);
 	return (maze);
 }
