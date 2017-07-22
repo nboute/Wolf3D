@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/07 10:52:16 by nboute            #+#    #+#             */
-/*   Updated: 2017/07/20 20:28:43 by nboute           ###   ########.fr       */
+/*   Updated: 2017/07/22 19:54:10 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,35 +15,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <pthread.h>
-
-
-t_sprite g_sprite[numSprites] =
-{
-	{28.0, 28.0, 11},
-	{31.5, 32.5, 10}, //green light in front of playerstart
-	//	green lights in every room
-	{18.5, 4.5, 10},
-	{10.5, 4.5, 10},
-	{10.5, 12.5, 10},
-	{4.5, 6.5, 10},
-	{4.5, 20.5, 10},
-	{4.5, 14.5, 10},
-	{14.5, 20.5, 10},
-
-	//row of pillars in front of wall: fisheye test
-	{18.5, 10.5, 9},
-	{18.5, 12.5, 9},
-	{18.5, 14.5, 9},
-
-	//some barrels around the map
-	{21.5, 2.5, 8},
-	{16.5, 32.5, 8},
-	{16.0, 32.8, 8},
-	{16.2, 32.2, 8},
-	{10.5, 16.5, 8},
-	{10.0, 16.1, 8},
-	{10.5, 14.8, 8},
-};
 
 void			ft_place_pixel(int color, int x, int y, t_mlx *mlx)
 {
@@ -93,6 +64,83 @@ int		text_formulas(int t, int x, int y)
 	return (65536 * (t - 8) * 32 + 256 * x * 4 + y * 4);
 }
 
+int		**load_wall(int wallId)
+{
+	printf("W%d\n", wallId);
+	if (wallId == 0)
+		return (bmp_to_array(TEXT_PATH"brickwall_dark.bmp", 64, 64));
+	else if (wallId == 1)
+		return (bmp_to_array(TEXT_PATH"slide_block.bmp", 64, 64));
+	else if (wallId == 2)
+		return (bmp_to_array(TEXT_PATH"warp_maze.bmp", 64, 64));
+	else if(wallId == 3)
+		return (bmp_to_array(TEXT_PATH"warp_slide.bmp", 64, 64));
+	return (NULL);
+}
+
+int		**load_floor(int	flrId)
+{
+	printf("F%d\n", flrId);
+	if (flrId == 0)
+		return (bmp_to_array(TEXT_PATH"gravel.bmp", 64, 64));
+	else if (flrId == 1)
+		return (bmp_to_array(TEXT_PATH"slide_floor.bmp", 64, 64));
+	else if (flrId == 2)
+		return (bmp_to_array(TEXT_PATH"brickfloor.bmp", 64, 64));
+	else if (flrId == 3)
+		return (bmp_to_array(TEXT_PATH"red_dall.bmp", 64, 64));
+	return (NULL);
+}
+
+int		**load_sprite(int	texId)
+{
+	printf("S%d\n", texId);
+	if (texId == 0)
+		return (bmp_to_array(TEXT_PATH"uwut.bmp", 64, 64));
+	else if (texId == 1)
+		return (bmp_to_array(TEXT_PATH"barrel.bmp", 64, 64));
+	return (NULL);
+}
+
+int		***load_text(t_map *map, int mapId)
+{
+	int	***textures;
+	int	i;
+	int	j;
+
+	if (mapId == 0)
+		i = 10;
+	else
+		i = 3;
+	map->nbtextures = i;
+	map->nbsprites = (map->id == 0)? 2 : 1;
+	if (map->id == 2)
+		map->nbsprites = 0;
+	if (!(textures = (int***)malloc(sizeof(int**) * i)))
+		return (NULL);
+	i = 0;
+	if (mapId)
+	{
+		textures[0] = load_floor(mapId - 1);
+		textures[1] = load_sprite(mapId - 1);
+		textures[2] = load_wall(mapId - 1);
+	}
+	else
+	{
+		j = -1;
+		while (++j < 4)
+			textures[j] = load_floor(j);
+		j--;
+		while (++j < 6)
+			textures[j] = load_sprite(j - 4);
+		j--;
+		while (++j < 10)
+			textures[j] = load_wall(j - 6);
+	}
+	getchar();
+	return (textures);
+}
+
 int		***gen_text(void)
 {
 	int	x;
@@ -102,14 +150,15 @@ int		***gen_text(void)
 
 	textures = (int***)malloc(sizeof(int**) * 14);
 	x = 0;
-	i = 3;
-	textures[0] = bmp_to_array("./brickwall_dark.bmp", 64, 64);
-	textures[1] = bmp_to_array("./red_dall.bmp", 64, 64);
-	textures[2] = bmp_to_array("./warp_maze.bmp", 64, 64);
-	textures[8] = bmp_to_array("./barrel.bmp", 64, 64);
-	textures[9] = bmp_to_array("./wolf_pillar.bmp", 64, 64);
-	textures[10] = bmp_to_array("./greenlight.bmp", 64, 64);
-	textures[11] = bmp_to_array("./uwut.bmp", 64, 64);
+	i = 4;
+	textures[0] = bmp_to_array(TEXT_PATH"brickwall_dark.bmp", 64, 64);
+	textures[1] = bmp_to_array(TEXT_PATH"red_dall.bmp", 64, 64);
+	textures[2] = bmp_to_array(TEXT_PATH"warp_maze.bmp", 64, 64);
+	textures[3] = bmp_to_array(TEXT_PATH"warp_slide.bmp", 64, 64);
+	textures[8] = bmp_to_array(TEXT_PATH"barrel.bmp", 64, 64);
+	textures[9] = bmp_to_array(TEXT_PATH"wolf_pillar.bmp", 64, 64);
+	textures[10] = bmp_to_array(TEXT_PATH"greenlight.bmp", 64, 64);
+	textures[11] = bmp_to_array(TEXT_PATH"uwut.bmp", 64, 64);
 	while (i < 14)
 	{
 		textures[i] = (int**)malloc(sizeof(int*) * 64);
@@ -190,6 +239,7 @@ int		key_pressed(int key, void *ptr)
 	{
 		system("clear");
 		print_grid(mlx->map, (int)mlx->cam.posX, (int)mlx->cam.posY);
+		printf("%lf|%lf\n", mlx->cam.posX, mlx->cam.posY);
 	}
 	else if (key == 14)
 	{
@@ -220,7 +270,10 @@ int		key_pressed(int key, void *ptr)
 void	rotate_view(double rotspeed, t_mlx *mlx)
 {
 	double	tmp;
+	static double var = 0;
 
+	var += rotspeed;
+	printf("||%lf||\n", var);
 	tmp = mlx->cam.dirX;
 	mlx->cam.dirX = mlx->cam.dirX * cos(rotspeed) - mlx->cam.dirY * sin(rotspeed);
 	mlx->cam.dirY = tmp * sin(rotspeed) + mlx->cam.dirY * cos(rotspeed);
@@ -236,21 +289,39 @@ void	ft_move_2(t_mlx *mlx, t_keys *k, double val[4], double hbx[2])
 	map = mlx->map->map;
 	val[2] = mlx->cam.posX - val[0];
 	val[3] = mlx->cam.posY - val[1];
-	if (k[1].pressed && !k[0].pressed)
+	if (k[1].pressed && !k[0].pressed && mlx->map->id != 2)
 	{
 		if (val[2] - hbx[0] >= 0 && (int)(val[2] - hbx[0]) < mlx->map->width)
-			if (map[(int)(val[2] - hbx[0])][(int)(mlx->cam.posY - hbx[1])] <= 0
-				&& map[(int)val[2]][(int)mlx->cam.posY] <= 0)
+			if (map[(int)(val[2] - hbx[0])][(int)(mlx->cam.posY - hbx[1])] <
+					mlx->map->hit && map[(int)val[2]][(int)mlx->cam.posY]
+					< mlx->map->hit)
 				mlx->cam.posX -= val[0];
 		if (val[3] - hbx[1] >= 0 && (int)(val[3] - hbx[1]) < mlx->map->height)
-			if (map[(int)(mlx->cam.posX - hbx[0])][(int)(val[3] - hbx[1])] <= 0
-					&& map[(int)mlx->cam.posX][(int)val[3]] <= 0)
+			if (map[(int)(mlx->cam.posX - hbx[0])][(int)(val[3] - hbx[1])] <
+					mlx->map->hit && map[(int)mlx->cam.posX][(int)val[3]] <
+					mlx->map->hit)
 				mlx->cam.posY -= val[1];
 	}
 	if (k[2].pressed && !k[3].pressed)
 		rotate_view(mlx->rotspeed, mlx);
 	else if (k[3].pressed && !k[2].pressed)
 		rotate_view(-mlx->rotspeed, mlx);
+	if (mlx->map->id == 2)
+	{
+		if ((int)(mlx->cam.posY + 0.03) >= mlx->map->height - 1)
+		{
+			load_map(0, &mlx->map, mlx);
+			ft_putendl("youwin");
+		}
+		if (mlx->map->map[(int)mlx->cam.posX][(int)(mlx->cam.posY + 0.03)]
+				>= mlx->map->hit)
+		{
+			load_map(0, &mlx->map, mlx);
+			ft_putendl("youlost");
+		}
+		else
+			mlx->cam.posY += 0.03;
+	}
 }
 
 void	ft_move(t_mlx *mlx)
@@ -268,15 +339,17 @@ void	ft_move(t_mlx *mlx)
 	val[1] = mlx->cam.dirY * mlx->movespeed;
 	val[2] = mlx->cam.posX + val[0];
 	val[3] = mlx->cam.posY + val[1];
-	if (k[0].pressed && !k[1].pressed)
+	if (k[0].pressed && !k[1].pressed && mlx->map->id != 2)
 	{
-		if (val[2] + hbx[0] >= 0 && (int)(val[2] + hbx[0] < mlx->map->width))
-			if (map[(int)(val[2] + hbx[0])][(int)(mlx->cam.posY + hbx[1])] <= 0
-					&& map[(int)(val[2])][(int)(mlx->cam.posY)] <= 0)
+		if (val[2] + hbx[0] >= 0 && (int)(val[2] + hbx[0]) < mlx->map->width)
+			if (map[(int)(val[2] + hbx[0])][(int)(mlx->cam.posY + hbx[1])] <
+				mlx->map->hit && map[(int)(val[2])][(int)(mlx->cam.posY)] <
+				mlx->map->hit)
 				mlx->cam.posX += val[0];
-		if (val[3] + hbx[1] >= 0 && (int)(val[3] + hbx[1]) < mlx->map->width)
-			if (map[(int)(mlx->cam.posX + hbx[0])][(int)(val[3] + hbx[1])] <= 0
-					&& map[(int)(mlx->cam.posX)][(int)(val[3])] <= 0)
+		if (val[3] + hbx[1] >= 0 && (int)(val[3] + hbx[1]) < mlx->map->height)
+			if (map[(int)(mlx->cam.posX + hbx[0])][(int)(val[3] + hbx[1])] <
+					mlx->map->hit && map[(int)(mlx->cam.posX)][(int)(val[3])]
+					< mlx->map->hit)
 				mlx->cam.posY += val[1];
 	}
 	ft_move_2(mlx, k, val, hbx);
@@ -356,7 +429,7 @@ void		raycast_dda_alg(t_mlx *mlx, t_vects *v)
 			v->mapY += v->stepY;
 			v->side = 1;
 		}
-		if (mlx->map->map[v->mapX][v->mapY] > 0)
+		if (mlx->map->map[v->mapX][v->mapY] >= mlx->map->hit)
 			hit = 1;
 	}
 	if (v->x == mlx->height / 2)
@@ -375,11 +448,8 @@ void		raycast_draw_wall(t_mlx *mlx, t_vects *v, int texNum)
 	int	texX;
 
 	i = v->drawstart;
-	texX = (int)(v->wallX * (double)64);
-	texX = 64 - texX - 1;
+	texX = 63 - (int)(v->wallX * (double)64);
 	i = v->drawstart;
-	if (mlx->map->map[v->mapX][v->mapY] == 2)
-		texNum = 2;
 	while (i < v->drawend)
 	{
 		d = i * 256 - mlx->height * 128 + v->lineH * 128;
@@ -395,6 +465,7 @@ void		raycast_draw_wall(t_mlx *mlx, t_vects *v, int texNum)
 
 void		raycast_calc_wall(t_mlx *mlx, t_vects *v)
 {
+	int	texNum;
 	v->lineH = (int)(mlx->height / v->pwalldt);
 	v->drawstart = -v->lineH / 2 + mlx->height / 2;
 	if (v->drawstart < 0)
@@ -409,7 +480,11 @@ void		raycast_calc_wall(t_mlx *mlx, t_vects *v)
 	else
 		v->wallX = v->rayposX + v->pwalldt * v->raydirX;
 	v->wallX -= floor(v->wallX);
-	raycast_draw_wall(mlx, v, 0);
+	if (mlx->map->id == 0)
+		texNum = mlx->map->map[v->mapX][v->mapY];
+	else
+		texNum = 2;
+	raycast_draw_wall(mlx, v, texNum);
 }
 
 void		raycast_draw_floor(t_mlx *mlx, t_vects *v,
@@ -417,6 +492,7 @@ void		raycast_draw_floor(t_mlx *mlx, t_vects *v,
 {
 	int	i;
 	t_flrinf	t;
+	int	texNum;
 
 	t.distWall = v->pwalldt;
 	t.distPlayer = 0.0;
@@ -431,11 +507,8 @@ void		raycast_draw_floor(t_mlx *mlx, t_vects *v,
 		t.currFlrY = t.weight * floorYWall + (1.0 - t.weight) * mlx->cam.posY;
 		t.flrTexX = (int)(t.currFlrX * 64) % 64;
 		t.flrTexY = (int)(t.currFlrY * 64) % 64;
-		if (mlx->map->map[(int)t.currFlrX][(int)t.currFlrY] == 0)
-			ft_place_pixel(((mlx->map->textures[1][t.flrTexX][t.flrTexY] >> 1)
-						& 8355711), v->x, i, mlx);
-		else
-			ft_place_pixel(((mlx->map->textures[6][t.flrTexX][t.flrTexY] >> 1)
+		texNum = mlx->map->id == 0 ? ((int)t.currFlrX + (int)t.currFlrY) % 4 : 0;
+		ft_place_pixel(((mlx->map->textures[texNum][t.flrTexX][t.flrTexY] >> 1)
 						& 8355711), v->x, i, mlx);
 		i++;
 	}
@@ -473,18 +546,19 @@ void		raycast_draw_sprites(t_mlx *mlx, t_vects *v, t_sprinf *s, int col)
 	x = v->drawstartX - 1;
 	while (++x < v->drawendX)
 	{
-		texX = (int)(256 * (x - (-s->spriteWidth / 2 + s->spritescreenX)) * 64
-				/ s->spriteWidth) / 256;
-		if (s->transfY > 0 && x < mlx->width && s->transfY < mlx->zbuff[x])
+		texX = (int)(256 * (x - (-s->sprWidth / 2 + s->sprscreenX)) * 64
+				/ s->sprWidth) / 256;
+		if (texX > 0 && s->transfY > 0 && x < mlx->width && s->transfY < mlx->zbuff[x])
 		{
 			y = v->drawstartY - 1;
 			while (++y < v->drawendY)
 			{
-				texY = (((y * 256 - mlx->height * 128 + s->spriteHeight * 128)
-							* 64) / s->spriteHeight) / 256;
+				texY = (((y * 256 - mlx->height * 128 + s->sprHeight * 128)
+							* 64) / s->sprHeight) / 256;
 				if (texY < 0)
 					texY = 0;
-				col = mlx->map->textures[g_sprite[s->spriteorder[s->sprid]].texture][texX][texY];
+				col = mlx->map->textures[mlx->map->sprites
+					[s->sprOrd[s->sprid]].texture][texX][texY];
 				if ((col & 0x00FFFFFF) != 0 && (col & 0x00FFFFFF) != 0x00191919)
 					ft_place_pixel(col, x, y, mlx);
 			}
@@ -494,57 +568,67 @@ void		raycast_draw_sprites(t_mlx *mlx, t_vects *v, t_sprinf *s, int col)
 
 void		raycast_calc_sprites(t_mlx * mlx, t_vects *v, t_sprinf *s)
 {
-	s->spriteX = g_sprite[s->spriteorder[s->sprid]].x - mlx->cam.posX;
-	s->spriteY = g_sprite[s->spriteorder[s->sprid]].y - mlx->cam.posY;
+	s->sprX = mlx->map->sprites[s->sprOrd[s->sprid]].x - mlx->cam.posX;
+	s->sprY = mlx->map->sprites[s->sprOrd[s->sprid]].y - mlx->cam.posY;
+	if (s->sprX == 0)
+		s->sprX = 0.01;
+	if (s->sprY == 0)
+		s->sprY = 0.01;
 	s->invDet = 1.0 / (mlx->cam.planeX * mlx->cam.dirY
 			- mlx->cam.dirX * mlx->cam.planeY);
-	s->transfX = s->invDet * (mlx->cam.dirY * s->spriteX
-			- mlx->cam.dirX * s->spriteY);
-	s->transfY = s->invDet * (-mlx->cam.planeY * s->spriteX
-			+ mlx->cam.planeX * s->spriteY);
-	s->spritescreenX = (int)((mlx->width / 2) * (1 + s->transfX / s->transfY));
-	s->spriteHeight = abs((int)(mlx->height / s->transfY));
-	v->drawstartY = -s->spriteHeight / 2 + mlx->height / 2;
+	s->transfX = s->invDet * (mlx->cam.dirY * s->sprX
+			- mlx->cam.dirX * s->sprY);
+	s->transfY = s->invDet * (-mlx->cam.planeY * s->sprX
+			+ mlx->cam.planeX * s->sprY);
+	s->sprscreenX = (int)((mlx->width / 2) * (1 + s->transfX / s->transfY));
+	s->sprHeight = abs((int)(mlx->height / s->transfY));
+	v->drawstartY = -s->sprHeight / 2 + mlx->height / 2;
 	if (v->drawstartY < 0)
 		v->drawstartY = 0;
-	v->drawendY = s->spriteHeight / 2 + mlx->height / 2;
+	v->drawendY = s->sprHeight / 2 + mlx->height / 2;
 	if (v->drawendY >= mlx->height)
 		v->drawendY = mlx->height - 1;
 	if (v->drawendY < 0)
 		v->drawendY = 0;
-	s->spriteWidth = abs((int)(mlx->width / s->transfY));
-	v->drawstartX = -s->spriteWidth / 2 + s->spritescreenX;
+	s->sprWidth = abs((int)(mlx->width / s->transfY));
+	v->drawstartX = -s->sprWidth / 2 + s->sprscreenX;
 	if (v->drawstartX < 0)
 		v->drawstartX = 0;
-	v->drawendX = s->spriteWidth / 2 + s->spritescreenX;
+	v->drawendX = s->sprWidth / 2 + s->sprscreenX;
 	if (v->drawendX >= mlx->width)
 		v->drawendX = mlx->width - 1;
 	if (v->drawendX < 0)
 		v->drawendX = 0;
 }
 
-void		raycast_sprites(t_mlx *mlx, t_vects *v)
+int		raycast_sprites(t_mlx *mlx, t_vects *v)
 {
 	int			i;
 	t_sprinf	s;
 
 	i = 0;
-	while (i < numSprites)
+	if (!(s.sprOrd = (int*)malloc(sizeof(int) * mlx->map->nbtextures)))
+		return (0);
+	if (!(s.sprDist = (double*)malloc(sizeof(double) * mlx->map->nbtextures)))
+		return (0);
+	while (i < mlx->map->nbsprites)
 	{
-		s.spriteorder[i] = i;
-		s.spriteDistance[i] = ((mlx->cam.posX - g_sprite[i].x) *
-				(mlx->cam.posX - g_sprite[i].x) + (mlx->cam.posY -
-					g_sprite[i].y) * (mlx->cam.posY - g_sprite[i].y));
+		s.sprOrd[i] = i;
+		s.sprDist[i] = ((mlx->cam.posX - mlx->map->sprites[i].x) *
+			(mlx->cam.posX - mlx->map->sprites[i].x) + (mlx->cam.posY -
+			mlx->map->sprites[i].y) * (mlx->cam.posY - mlx->map->sprites[i].y));
 		i++;
 	}
-	ft_combsort(s.spriteorder, s.spriteDistance, numSprites);
+	if (mlx->map->nbsprites > 1)
+		ft_combsort(s.sprOrd, s.sprDist, mlx->map->nbsprites);
 	s.sprid = 0;
-	while (s.sprid < numSprites)
+	while (s.sprid < mlx->map->nbsprites)
 	{
 		raycast_calc_sprites(mlx, v, &s);
 		raycast_draw_sprites(mlx, v, &s, 0);
 		s.sprid++;
 	}
+	return (1);
 }
 
 void		*raycast(void	*data)
@@ -553,26 +637,25 @@ void		*raycast(void	*data)
 	t_vects	*v;
 	int		i;
 
-	ft_putstr("WHYA\n");
-	mlx = (t_mlx*)data;
 	mlx = ((t_thread*)data)->data;
-	i = ((t_thread*)data)->id;
-	v = &mlx->vectors[i];
-	v->x = (i * mlx->width) / RAYCAST_THREADS;
-	i = ((i + 1) * mlx->width) / RAYCAST_THREADS;
-	while (v->x < i)
+	if (!mlx->loading)
 	{
-		raycast_setparams(mlx, v, v->x);
-	ft_putstr("WHYC\n");
-		raycast_dda_alg(mlx, v);
-		raycast_calc_wall(mlx, v);
-		mlx->zbuff[v->x] = v->pwalldt;
-		raycast_calc_floor(mlx, v);
-		v->x++;
+		i = ((t_thread*)data)->id;
+		v = &mlx->vectors[i];
+		v->x = (i * mlx->width) / RAYCAST_THREADS;
+		i = ((i + 1) * mlx->width) / RAYCAST_THREADS;
+		while (v->x < i)
+		{
+			raycast_setparams(mlx, v, v->x);
+			raycast_dda_alg(mlx, v);
+			raycast_calc_wall(mlx, v);
+			mlx->zbuff[v->x] = v->pwalldt;
+			raycast_calc_floor(mlx, v);
+			v->x++;
+		}
+		if (mlx->map->nbsprites)
+			raycast_sprites(mlx, v);
 	}
-	ft_putstr("WHYB\n");
-	if (mlx->map->id)
-		raycast_sprites(mlx, v);
 	return (NULL);
 }
 
@@ -610,16 +693,16 @@ void	ft_move_mobs(t_mlx *mlx)
 
 	dirX = 0;
 	dirY = 0;
-	if (mlx->cam.posX < g_sprite[0].x + 0.5)
+	if (mlx->cam.posX < mlx->map->sprites[0].x + 0.5)
 		dirX = -1;
-	else if (mlx->cam.posX > g_sprite[0].x - 0.5)
+	else if (mlx->cam.posX > mlx->map->sprites[0].x - 0.5)
 		dirX = 1;
-	if (mlx->cam.posY < g_sprite[0].y + 0.5)
+	if (mlx->cam.posY < mlx->map->sprites[0].y + 0.5)
 		dirY = -1;
-	else if (mlx->cam.posY > g_sprite[0].y - 0.5)
+	else if (mlx->cam.posY > mlx->map->sprites[0].y - 0.5)
 		dirY = 1;
-	g_sprite[0].x += (double)dirX * 0.02;
-	g_sprite[0].y += (double)dirY * 0.02;
+	mlx->map->sprites[0].x += (double)dirX * 0.01;
+	mlx->map->sprites[0].y += (double)dirY * 0.01;
 }
 
 int	loop(void *ptr)
@@ -627,47 +710,90 @@ int	loop(void *ptr)
 	t_mlx *mlx;
 
 	mlx = (t_mlx*)ptr;
-	ft_move(mlx);
-	mlx->cam.target = 0;
-	mlx->cam.posX = roundf(mlx->cam.posX * 100) / 100;
-	mlx->cam.posY = roundf(mlx->cam.posY * 100) / 100;
-	ft_move_mobs(mlx);
-	ft_threads(mlx);
+	if (!mlx->loading)
+	{
+		ft_move(mlx);
+		mlx->cam.target = 0;
+		mlx->cam.posX = roundf(mlx->cam.posX * 100) / 100;
+		mlx->cam.posY = roundf(mlx->cam.posY * 100) / 100;
+		if (mlx->map->id == 1)
+			ft_move_mobs(mlx);
+		ft_threads(mlx);
+	}
 	//	raycast(mlx);
 	return (0);
 }
 #include <locale.h>
 #include <stdio.h>
 
+int		free_text(int ***text, int nb)
+{
+	int	i;
+	int	j;
+
+	if (!text)
+		return (0);
+	i = 0;
+	while (i < nb && text[i])
+	{
+		j = 0;
+		while (j < TEXWID && text[i][j])
+		{
+			free(text[i][j]);
+			j++;
+		}
+		free(text[i]);
+		i++;
+	}
+	free(text);
+	return (0);
+}
+
+int		free_map(t_map *map)
+{
+	int	i;
+
+	if (!map)
+		return (0);
+	i = 0;
+	if (map->map)
+	{
+		while (i < map->width && map->map[i])
+			free(map->map[i++]);
+		free(map->map);
+	}
+	
+	i = 0;
+	if (map->sprites)
+		free(map->sprites);
+	free_text(map->textures, map->nbtextures);
+	return (0);
+}
 
 t_map	*load_map(int id, t_map **oldmap, t_mlx *mlx)
 {
 	t_map	*map;
-	ft_putchar('a');
-	if (id == 0)
-		map = ft_start_map(32, 32);
-	else
-		map = mazegen(64, 4);
-	ft_putchar('b');
+//	load_load(mlx, id);
+	ft_putendl("loading map n textures\n");
 	if (oldmap)
-	{
-		map->textures = (*oldmap)->textures;
-		map->nbtextures = 14;
-		map->sprites = (*oldmap)->sprites;
-		map->nbsprites = 19;
-	}
+		free_map(*oldmap);
+	mlx->loading = 1;
+	if (id == 0)
+		map = ft_start_map();
+	else if (id == 1)
+		map = mazegen(64, 4);
 	else
-	{
-		map->textures = gen_text();
-		map->nbtextures = 14;
-	}
-	ft_putchar('c');
-	mlx->cam.posX = mlx->map->startx + 0.5;
-	mlx->cam.posY = mlx->map->starty + 0.5;
+		map = slidegen(20, 200, 3);
+	mlx->cam.posX = map->startx + 0.5;
+	mlx->cam.posY = map->starty + 0.5;
 	mlx->cam.dirX = -1;
 	mlx->cam.dirY = 0;
 	mlx->cam.planeX = 0;
 	mlx->cam.planeY = 0.66;
+	mlx->movespeed = (map->id == 1) ? 0.05 : 0.1;
+	map->textures = load_text(map, map->id);
+	map->hit = (map->id == 0)? 6 : 1;
+	mlx->map = map;
 /*	int	i;
 	i = 0;
 	if (oldmap)
@@ -677,7 +803,11 @@ t_map	*load_map(int id, t_map **oldmap, t_mlx *mlx)
 		free((*oldmap)->map);
 		free(*oldmap);
 	}
-*/	return (map);
+	*/
+//	sleep(5);
+	mlx->loading = 0;
+	ft_putstr("map and textures both loaded\n");
+	return (map);
 }
 
 int	mouse_pressed(int button, int x, int y, void *data)
@@ -691,10 +821,10 @@ int	mouse_pressed(int button, int x, int y, void *data)
 	{
 		if (mlx->map->id == 0 && button == 1)
 		{
-			ft_putstr("test");
-			if (mlx->cam.target == 2)
+			if (mlx->cam.target == 8)
 				mlx->map = load_map(1, &mlx->map, mlx);
-			ft_putstr("testb\n");
+			else if (mlx->cam.target == 9)
+				mlx->map = load_map(2, &mlx->map, mlx);
 		}
 	}
 	return (0);
@@ -706,6 +836,8 @@ int	main(void)
 
 	t_map maze;
 
+	printf("%s\n", TEXT_PATH);
+	mlx.loading = 1;
 	setlocale(LC_ALL, "");
 	srand(time(NULL));
 	maze.height = 64;
@@ -713,13 +845,13 @@ int	main(void)
 //	mazegen(&maze, maze.height, 4);
 //	mlx.map = &maze;
 	mlx.map = load_map(0, NULL, &mlx);
-	mlx.map->textures = gen_text();
 	/*	mlx.map->maphei = 64;
 		mlx.map->mapwid = 64;
 		if (!(mlx.map->map = (char**)malloc(sizeof(char*) * (mlx.map->maphei + 1))))
 		return (-1);
 		*/
-
+	mlx.cam.posX = mlx.map->startx + 0.5;
+	mlx.cam.posY = mlx.map->starty + 0.5;
 	if (!(mlx.keys = (t_keys*)malloc(sizeof(t_keys) * 4)))
 		return (-1);
 	mlx.keys[0].key = KEY_UP;
@@ -733,7 +865,7 @@ int	main(void)
 	mlx.height = 1000;
 	mlx.width = 1000;
 	mlx.mlx = mlx_init();
-	mlx.win = mlx_new_window(mlx.mlx, mlx.height, mlx.width, "Wolf3D");
+	mlx.win = mlx_new_window(mlx.mlx, mlx.width, mlx.height, "Wolf3D");
 	mlx.img = NULL;
 	/*	int	y;
 		int	x = 0;
@@ -752,12 +884,12 @@ int	main(void)
 		mlx.map->map[x][y] = '\0';
 		x++;
 		}*/
-	mlx.movespeed = 0.05;
 	mlx.rotspeed = 0.05;
 	//	mlx.map->map[x] = NULL;
 	mlx_hook(mlx.win, 2, 1L<<0, key_pressed, &mlx);
 	mlx_hook(mlx.win, 3, 1L<<1, key_released, &mlx);
 	mlx_mouse_hook(mlx.win, mouse_pressed, &mlx);
+	mlx.loading = 0;
 	mlx_loop_hook(mlx.mlx, loop, &mlx);
 	//	mlx_hook(win, 17, 1L<<17, exit(clean), (void*)mlx);
 	mlx_loop(mlx.mlx);

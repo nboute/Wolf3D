@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/07 10:45:11 by nboute            #+#    #+#             */
-/*   Updated: 2017/07/20 19:14:26 by nboute           ###   ########.fr       */
+/*   Updated: 2017/07/22 19:30:25 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,16 @@
 # include "../minilibx_macos/mlx.h"
 # include "../libft/libft.h"
 # include <pthread.h>
-# define RAYCAST_THREADS 4
+# define RAYCAST_THREADS 1
 # define KEY_UP 126
 # define KEY_DOWN 125
 # define KEY_LEFT 123
 # define KEY_RIGHT 124
-# define numSprites 19
+# define TEXT_PATH "/Users/nboute/Projets/Github/Wolf3D/textures/"
+# define TEXWID 64
+# define TEXHEI 64
+# define PI 3.14159265359
+
 typedef struct	s_keys
 {
 	short		key;
@@ -44,17 +48,17 @@ typedef struct	s_thread
 
 typedef struct	s_sprinf
 {
-	double		spriteX;
-	double		spriteY;
+	double		sprX;
+	double		sprY;
 	double		invDet;
 	double		transfX;
 	double		transfY;
-	int			spritescreenX;
-	int			spriteHeight;
-	int			spriteWidth;
+	int			sprscreenX;
+	int			sprHeight;
+	int			sprWidth;
 	int			sprid;
-	int			spriteorder[numSprites];
-	double		spriteDistance[numSprites];
+	int			*sprOrd;
+	double		*sprDist;
 }				t_sprinf;
 
 typedef struct	s_flrinf
@@ -121,6 +125,7 @@ typedef struct	s_map
 	t_sprite	*sprites;
 	int			nbsprites;
 	int			out;
+	int			hit;
 
 }				t_map;
 
@@ -143,12 +148,15 @@ typedef struct	s_mlx
 	t_keys		*keys;
 	double		movespeed;
 	double		rotspeed;
-	double		zbuff[1000];
+	double		zbuff[1200];
+	short		loading;
 }				t_mlx;
 
 t_map	*mazegen(int	size, int out);
 int		print_grid(t_map *maze, int mx, int my);
 int		**bmp_to_array(char *name, int width, int height);
-t_map	*ft_start_map(size_t x, size_t y);
+t_map	*slidegen(int width, int height, int density);
+t_map	*ft_start_map();
+t_map	*load_map(int id, t_map **oldmap, t_mlx *mlx);
 
 #endif

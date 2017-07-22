@@ -6,7 +6,7 @@
 /*   Bx: nboute <marviny42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/08 18:55:12 bx nboute            #+#    #+#             */
-/*   Updated: 2017/07/20 20:19:52 by nboute           ###   ########.fr       */
+/*   Updated: 2017/07/22 18:58:11 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void	draw_box(t_map *maze, int y, int x)
 
 	map = maze->map;
 	int	val;
-	val = map[y - 1][x] + map[y][x - 1] * 2 + map[y][x + 1] * 4 + map[y + 1][x] * 8;
+	val = map[x][y - 1] + map[x - 1][y] * 2 + map[x + 1][y] * 4 + map[x][y + 1] * 8;
 	switch(val)
 	{
 		case 0:
@@ -92,6 +92,7 @@ int		print_grid(t_map *maze, int mx, int my)
 		{
 			if (mx == x && y == my)
 				printf("\x1b[33m%C", 0x2588);
+			/*
 			else if (maze->map[x][y] == 1)
 			{
 	if (y - 1 >= 0 && y + 2 <= maze->height && x - 1 >= 0 && x + 2 <= maze->width)
@@ -102,7 +103,7 @@ int		print_grid(t_map *maze, int mx, int my)
 			else if (maze->map[x][y] == 3)
 				printf("\x1b[31m%C", 0x254B);
 			else if (maze->map[x][y] == -1)
-				printf("\x1b[31m%C", 0x2574);
+				printf("\x1b[31m%C", 0x2574);*/
 			else
 				printf("%d", maze->map[x][y]);
 			x++;
@@ -118,25 +119,25 @@ int		create_maze(t_map *maze, int oldpos, int movey, int movex)
 	int	y;
 	int	x;
 
-	y = oldpos % maze->height + movey;
-	x = oldpos / maze->width + movex;
-	maze->map[y - (movey / 2)][x - (movex / 2)] = 0;
-	maze->map[y][x] = 0;
-	oldpos = y + x * maze->height;
+	y = oldpos / maze->width + movey;
+	x = oldpos % maze->width + movex;
+	maze->map[x - (movex / 2)][y - (movey / 2)] = 0;
+	maze->map[x][y] = 0;
+	oldpos = x + y * maze->width;
 	movey = 0;
 	movex = 0;
-	while (maze->map[y][x + 2] == 1 || maze->map[y][x - 2] == 1
-			|| maze->map[y + 2][x] == 1 || maze->map[y - 2][x] == 1)
+	while (maze->map[x][y + 2] == 1 || maze->map[x][y - 2] == 1
+			|| maze->map[x + 2][y] == 1 || maze->map[x - 2][y] == 1)
 	{
 		dir = rand() % 4;
-		if (dir == 0 && maze->map[y][x + 2] == 1)
-			movex = 2;
-		else if (dir == 1 && maze->map[y][x - 2] == 1)
-			movex = -2;
-		else if (dir == 2 && maze->map[y + 2][x] == 1)
+		if (dir == 0 && maze->map[x][y + 2] == 1)
 			movey = 2;
-		else if (dir == 3 && maze->map[y - 2][x] == 1)
+		else if (dir == 1 && maze->map[x][y - 2] == 1)
 			movey = -2;
+		else if (dir == 2 && maze->map[x + 2][y] == 1)
+			movex = 2;
+		else if (dir == 3 && maze->map[x - 2][y] == 1)
+			movex = -2;
 		create_maze(maze, oldpos, movey, movex);
 	}
 	return (0);
@@ -154,7 +155,7 @@ void	create_exit(char **maze, int h_w, int out)
 		y = (rnd % 2) * (h_w - out) + 1;
 		while (y < h_w && y > out)
 		{
-			maze[y][(rnd / 4) * 2 + out] = -1;
+			maze[(rnd / 4) * 2 + out][y] = -1;
 			y++;
 		}
 	}
@@ -163,7 +164,7 @@ void	create_exit(char **maze, int h_w, int out)
 		x = (rnd % 2) * (h_w - out) + 1;
 		while (x < h_w && x > out)
 		{
-			maze[(rnd / 4) * 2 + out][x] = -1;
+			maze[x][(rnd / 4) * 2 + out] = -1;
 			x++;
 		}
 	}
@@ -181,32 +182,35 @@ t_map	*mazegen(int	size, int out)
 	maze = (t_map*)malloc(sizeof(t_map));
 	maze->map = (char**)malloc(sizeof(char*) * size);
 	srand(time(NULL));
-	y = -1;
+	x = -1;
 	maze->height = size;
 	maze->width = size;
-	while (++y < size)
+	while (++x < size)
 	{
-		maze->map[y] = (char*)malloc(sizeof(char) * size);
-		x = -1;
-		while (++x < size)
+		maze->map[x] = (char*)malloc(sizeof(char) * size);
+		y = -1;
+		while (++y < size)
 		{
 			if (y < out || y > size - out || x < out || x > size - out)
 			{
-				maze->map[y][x] = 2;
+				maze->map[x][y] = 2;
 			}
 			else
 			{
-				maze->map[y][x] = 1;
+				maze->map[x][y] = 1;
 			}
 		}
 	}
+	maze->sprites = (t_sprite*)malloc(sizeof(t_sprite) * 1);
+	maze->nbsprites = 1;
+	maze->sprites[0].x = 0.0;
+	maze->sprites[0].y = 0.0;
+	maze->sprites[0].texture = 1;
 	print_grid(maze, maze->height, maze->width);
-	getchar();
 	maze->startx = (size / 2) + (size / 2) % 2;
 	maze->starty = maze->startx;
 	maze->id = 1;
-	create_maze(maze, (int)maze->startx + (int)(maze->starty) * maze->height, 0, 0);
+	create_maze(maze, (int)maze->startx + (int)(maze->starty) * maze->width, 0, 0);
 	create_exit(maze->map, size, out);
-	printf("%lf|%lf\n", maze->startx, maze->starty);
 	return (maze);
 }

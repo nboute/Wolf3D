@@ -3,86 +3,82 @@
 /*                                                        :::      ::::::::   */
 /*   slide.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   Bx: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/07/10 15:33:01 by nboute            #+#    #+#             */
-/*   Updated: 2017/07/10 16:54:02 by nboute           ###   ########.fr       */
+/*   Created: 2017/07/10 15:33:01 bx nboute            #+#    #+#             */
+/*   Updated: 2017/07/22 19:49:32 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include "../inc/header.h"
 
-int		print_grid(char **map, int width, int height)
+t_map	*slidegen(int width, int height, int densitx)
 {
-	int	x;
-	int	y;
-
-	y = 0;
-	while (y < height)
-	{
-		x = 0;
-		while (x < width)
-		{
-/*			if (map[y][x] < 0 || map[y][x] > 2)
-				printf("wtf\n");
-			if (map[y][x] == 0)
-				printf("%d", map[y][x]);
-			else if (map[y][x] == 1)
-				printf("%d", map[y][x]);
-			else
-*/				printf("%d", map[y][x]);
-			x++;
-		}
-		printf("\n");
-		y++;
-	}
-	return (0);
-}
-
-char	**slidegen(int width, int height, int density)
-{
-	char	**map;
-	int		x;
+	t_map	*map;
 	int		y;
+	int		x;
 	int		walls;
 	int		tmp;
 
 	srand(time(NULL));
-	map = (char**)malloc(sizeof(char*) * height);
-	y = 0;
+	map = (t_map*)malloc(sizeof(t_map));
+	if (!map)
+	{
+		ft_putendl("fuckyou");
+		exit(-1);
+	}
+	map->map = (char**)malloc(sizeof(char*) * width);
+	if (!map->map)
+	{
+		ft_putendl("fuckyoutoo");
+		exit(-1);
+	}
+	x = 0;
+	while (x < width)
+		map->map[x++] = (char*)malloc(sizeof(char) *height);
 	walls = 0;
+	y = 0;
 	while (y < height)
 	{
 		x = 0;
 		if (walls > 1)
-			walls = rand() % density;
+			walls = rand() % densitx;
 		else
 			walls ++;
-		map[y] = (char*)malloc(sizeof(char) * width);
 		tmp = 0;
 		while (x < width)
 		{
-			if (x < 5 || x >= width - 5)
-				map[y][x] = 2;
+			if (y < 5 || y >= height - 5 || x < 5 || x >= width - 5)
+				map->map[x][y] = 1;
+			else if (y < 10)
+				map->map[x][y] = 0;
 			else if (!walls)
 			{
-				if (rand() % density == 0)
+				if (rand() % densitx == 0)
 				{
 					tmp = 1;
-					map[y][x] = 0;
+					map->map[x][y] = 0;
 				}
 				else
-					map[y][x] = 1;
+					map->map[x][y] = 1;
 			}
 			else
-				map[y][x] = 0;
+				map->map[x][y] = 0;
 			x++;
 		}
-		if (!tmp && !walls)
-			map[y][(rand() % (width - 10)) + 5] = 0;
+	//	if (!tmp && !walls)
+	//		map->map[x][(rand() % (height - 10)) + 5] = 0;
 		y++;
 	}
+	map->nbsprites = 0;
+	map->sprites = NULL;
+	map->width = width;
+	map->height = height;
+	map->starty = 7;
+	map->startx = 10;
+	map->id = 2;
 	return (map);
 }

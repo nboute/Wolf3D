@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/12 15:11:00 by nboute            #+#    #+#             */
-/*   Updated: 2017/07/20 20:10:19 by nboute           ###   ########.fr       */
+/*   Updated: 2017/07/22 13:45:06 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,6 @@ int		**bmp_to_array(char *name, int width, int height)
 	}
 	ret = read(fd, buff, inf.width * inf.bits / 8);
 	buff[ret] = '\0';
-	printf("\n%s loaded\n", name);
+	printf("\n%s loaded in %p\n", name, texture);
 	return (texture);
 }
