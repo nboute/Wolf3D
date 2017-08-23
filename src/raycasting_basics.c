@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/07 10:52:16 by nboute            #+#    #+#             */
-/*   Updated: 2017/07/22 19:54:10 by nboute           ###   ########.fr       */
+/*   Updated: 2017/08/23 21:32:40 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,19 @@
 void			ft_place_pixel(int color, int x, int y, t_mlx *mlx)
 {
 	*(unsigned*)(mlx->data + x * mlx->bpx / 8 + y * mlx->size) = color;
+///	*(unsigned*)(mlx->imgdata + x * mlx->bpx / 8 + y * mlx->size) = color;
 }
 /*
    int		exit_clean(void* mlx)
    {
 
    }*/
+void	ft_exit(void *idc)
+{
+	idc = NULL;
+	ft_putendl("Couldn't malloc");
+	exit(-1);
+}
 
 int		noise(void)
 {
@@ -113,11 +120,11 @@ int		***load_text(t_map *map, int mapId)
 	else
 		i = 3;
 	map->nbtextures = i;
-	map->nbsprites = (map->id == 0)? 2 : 1;
+	map->nbsprites = (map->id != 0)? 1 : 2;
 	if (map->id == 2)
 		map->nbsprites = 0;
 	if (!(textures = (int***)malloc(sizeof(int**) * i)))
-		return (NULL);
+		ft_exit(NULL);
 	i = 0;
 	if (mapId)
 	{
@@ -137,10 +144,9 @@ int		***load_text(t_map *map, int mapId)
 		while (++j < 10)
 			textures[j] = load_wall(j - 6);
 	}
-	getchar();
 	return (textures);
 }
-
+/*
 int		***gen_text(void)
 {
 	int	x;
@@ -148,7 +154,8 @@ int		***gen_text(void)
 	int	***textures;
 	int	i;
 
-	textures = (int***)malloc(sizeof(int**) * 14);
+	if (!(textures = (int***)malloc(sizeof(int**) * 14)))
+		ft_exit(NULL);
 	x = 0;
 	i = 4;
 	textures[0] = bmp_to_array(TEXT_PATH"brickwall_dark.bmp", 64, 64);
@@ -161,12 +168,14 @@ int		***gen_text(void)
 	textures[11] = bmp_to_array(TEXT_PATH"uwut.bmp", 64, 64);
 	while (i < 14)
 	{
-		textures[i] = (int**)malloc(sizeof(int*) * 64);
+		if (!(textures[i] = (int**)malloc(sizeof(int*) * 64)))
+			ft_exit(NULL);
 		x = 0;
 		while (x < 64 && (i <= 7 || i >= 12))
 		{
 			y = 0;
-			textures[i][x] = (int*)malloc(sizeof(int) * 64);
+			if (!(textures[i][] = (int*)malloc(sizeof(int) * 64)))
+				ft_exit(NULL);
 			while (y < 64)
 			{
 				textures[i][x][y] = text_formulas(i, x, y);
@@ -180,7 +189,7 @@ int		***gen_text(void)
 			i++;
 	}
 	return (textures);
-}
+}*/
 
 int		print_keys(void *ptr)
 {
@@ -220,6 +229,12 @@ int		key_pressed(int key, void *ptr)
 	i = 0;
 	mlx = (t_mlx*)ptr;
 	k = mlx->keys;
+	if (mlx->loading)
+	{
+		mlx->loading = 0;
+		load_map(0, &mlx->map, mlx);
+		return (0);
+	}
 	if (key >= KEY_LEFT || key <= KEY_UP)
 		while (i < 4)
 		{
@@ -243,25 +258,10 @@ int		key_pressed(int key, void *ptr)
 	}
 	else if (key == 14)
 	{
-		int	x, y;
-		x = 0;
-		while (x < mlx->map->width)
+		if (mlx->map->id == 1)
 		{
-			y = 0;
-			while (y < mlx->map->height)
-			{
-				if (mlx->map->map[x][y] == -1 && (mlx->map->map[x][y + 1] == 0
-							|| mlx->map->map[x][y - 1] == 0 ||
-							mlx->map->map[x + 1][y] == 0 ||
-							mlx->map->map[x - 1][y] == 0))
-				{
-					mlx->cam.posX = x + 0.5;
-					mlx->cam.posY = y + 0.5;
-					return (1);
-				}
-				y++;
-			}
-			x++;
+			mlx->cam.posX = ((t_mazedata*)(mlx->mapdata))->exit[0] + 0.5;
+			mlx->cam.posY = ((t_mazedata*)(mlx->mapdata))->exit[1] + 0.5;
 		}
 	}
 	return (0);
@@ -270,16 +270,49 @@ int		key_pressed(int key, void *ptr)
 void	rotate_view(double rotspeed, t_mlx *mlx)
 {
 	double	tmp;
-	static double var = 0;
 
-	var += rotspeed;
-	printf("||%lf||\n", var);
 	tmp = mlx->cam.dirX;
 	mlx->cam.dirX = mlx->cam.dirX * cos(rotspeed) - mlx->cam.dirY * sin(rotspeed);
 	mlx->cam.dirY = tmp * sin(rotspeed) + mlx->cam.dirY * cos(rotspeed);
 	tmp = mlx->cam.planeX;
 	mlx->cam.planeX = mlx->cam.planeX * cos(rotspeed) - mlx->cam.planeY * sin(rotspeed);
 	mlx->cam.planeY = tmp * sin(rotspeed) + mlx->cam.planeY * cos(rotspeed);
+}
+
+void	ft_move_slide(t_mlx *mlx, t_keys *k)
+{
+	double	dirX;
+	double	dirY;
+
+	dirX = 0;
+	dirY = 0;
+	if (k[0].pressed && !k[1].pressed)
+		dirY = mlx->movespeed;
+	else if (k[1].pressed && !k[0].pressed)
+		dirY = -mlx->movespeed;
+	if (k[2].pressed && !k[3].pressed)
+		dirX = -mlx->movespeed;
+	else if (k[3].pressed && !k[2].pressed)
+		dirX = mlx->movespeed;
+	if ((int)(mlx->cam.posY + dirY + 0.1) >= mlx->map->height - 1)
+		{
+			load_map(0, &mlx->map, mlx);
+			ft_putendl("youwin");
+		}
+		if (mlx->map->map[(int)(mlx->cam.posX + dirX)][(int)((mlx->cam.posY
+					+ dirY + 0.1))]
+				>= mlx->map->hit)
+		{
+			mlx->loading = 1;
+			ft_load_screen(mlx);
+			ft_putendl("youlost");
+		}
+		else
+		{
+			mlx->cam.posY += 0.1 + dirY;
+			mlx->cam.posX += dirX;
+			printf("%lf|%lf\n", mlx->cam.posX, mlx->cam.posY);
+		}
 }
 
 void	ft_move_2(t_mlx *mlx, t_keys *k, double val[4], double hbx[2])
@@ -306,22 +339,7 @@ void	ft_move_2(t_mlx *mlx, t_keys *k, double val[4], double hbx[2])
 		rotate_view(mlx->rotspeed, mlx);
 	else if (k[3].pressed && !k[2].pressed)
 		rotate_view(-mlx->rotspeed, mlx);
-	if (mlx->map->id == 2)
-	{
-		if ((int)(mlx->cam.posY + 0.03) >= mlx->map->height - 1)
-		{
-			load_map(0, &mlx->map, mlx);
-			ft_putendl("youwin");
-		}
-		if (mlx->map->map[(int)mlx->cam.posX][(int)(mlx->cam.posY + 0.03)]
-				>= mlx->map->hit)
-		{
-			load_map(0, &mlx->map, mlx);
-			ft_putendl("youlost");
-		}
-		else
-			mlx->cam.posY += 0.03;
-	}
+
 }
 
 void	ft_move(t_mlx *mlx)
@@ -339,6 +357,8 @@ void	ft_move(t_mlx *mlx)
 	val[1] = mlx->cam.dirY * mlx->movespeed;
 	val[2] = mlx->cam.posX + val[0];
 	val[3] = mlx->cam.posY + val[1];
+	if (mlx->map->id == 2)
+		ft_move_slide(mlx, k);
 	if (k[0].pressed && !k[1].pressed && mlx->map->id != 2)
 	{
 		if (val[2] + hbx[0] >= 0 && (int)(val[2] + hbx[0]) < mlx->map->width)
@@ -352,7 +372,8 @@ void	ft_move(t_mlx *mlx)
 					< mlx->map->hit)
 				mlx->cam.posY += val[1];
 	}
-	ft_move_2(mlx, k, val, hbx);
+	if (mlx->map->id != 2)
+		ft_move_2(mlx, k, val, hbx);
 }
 
 void	ft_combsort(int *order, double *dist, int amount)
@@ -455,9 +476,9 @@ void		raycast_draw_wall(t_mlx *mlx, t_vects *v, int texNum)
 		d = i * 256 - mlx->height * 128 + v->lineH * 128;
 		texY = ((d * 64) / v->lineH) / 256;
 		if (v->side == 1)
-			ft_place_pixel(mlx->map->textures[texNum][texX][texY], v->x, i, mlx);
+			ft_place_pixel(mlx->map->textures[texNum][texY][texX], v->x, i, mlx);
 		else
-			ft_place_pixel((mlx->map->textures[texNum][texX][texY] >> 1)
+			ft_place_pixel((mlx->map->textures[texNum][texY][texX] >> 1)
 					& 8355711, v->x, i, mlx);
 		i++;
 	}
@@ -508,7 +529,9 @@ void		raycast_draw_floor(t_mlx *mlx, t_vects *v,
 		t.flrTexX = (int)(t.currFlrX * 64) % 64;
 		t.flrTexY = (int)(t.currFlrY * 64) % 64;
 		texNum = mlx->map->id == 0 ? ((int)t.currFlrX + (int)t.currFlrY) % 4 : 0;
-		ft_place_pixel(((mlx->map->textures[texNum][t.flrTexX][t.flrTexY] >> 1)
+		if (mlx->map->map[(int)t.currFlrX][(int)t.currFlrY] == -1)
+			texNum = 1;
+		ft_place_pixel(((mlx->map->textures[texNum][t.flrTexY][t.flrTexX] >> 1)
 						& 8355711), v->x, i, mlx);
 		i++;
 	}
@@ -558,7 +581,7 @@ void		raycast_draw_sprites(t_mlx *mlx, t_vects *v, t_sprinf *s, int col)
 				if (texY < 0)
 					texY = 0;
 				col = mlx->map->textures[mlx->map->sprites
-					[s->sprOrd[s->sprid]].texture][texX][texY];
+					[s->sprOrd[s->sprid]].texture][texY][texX];
 				if ((col & 0x00FFFFFF) != 0 && (col & 0x00FFFFFF) != 0x00191919)
 					ft_place_pixel(col, x, y, mlx);
 			}
@@ -608,9 +631,9 @@ int		raycast_sprites(t_mlx *mlx, t_vects *v)
 
 	i = 0;
 	if (!(s.sprOrd = (int*)malloc(sizeof(int) * mlx->map->nbtextures)))
-		return (0);
+		ft_exit(NULL);
 	if (!(s.sprDist = (double*)malloc(sizeof(double) * mlx->map->nbtextures)))
-		return (0);
+		ft_exit(NULL);
 	while (i < mlx->map->nbsprites)
 	{
 		s.sprOrd[i] = i;
@@ -624,8 +647,9 @@ int		raycast_sprites(t_mlx *mlx, t_vects *v)
 	s.sprid = 0;
 	while (s.sprid < mlx->map->nbsprites)
 	{
-		raycast_calc_sprites(mlx, v, &s);
-		raycast_draw_sprites(mlx, v, &s, 0);
+			raycast_calc_sprites(mlx, v, &s);
+		if ((s.sprX >= 0.5 || s.sprX <= -0.5) || (s.sprY >= 0.5 || s.sprY <= -0.5))
+			raycast_draw_sprites(mlx, v, &s, 0);
 		s.sprid++;
 	}
 	return (1);
@@ -638,8 +662,6 @@ void		*raycast(void	*data)
 	int		i;
 
 	mlx = ((t_thread*)data)->data;
-	if (!mlx->loading)
-	{
 		i = ((t_thread*)data)->id;
 		v = &mlx->vectors[i];
 		v->x = (i * mlx->width) / RAYCAST_THREADS;
@@ -655,7 +677,6 @@ void		*raycast(void	*data)
 		}
 		if (mlx->map->nbsprites)
 			raycast_sprites(mlx, v);
-	}
 	return (NULL);
 }
 
@@ -669,6 +690,7 @@ void	ft_threads(t_mlx *mlx)
 		mlx_destroy_image(mlx->mlx, mlx->img);
 	mlx->img = mlx_new_image(mlx->mlx, mlx->width, mlx->height);
 	mlx->data = mlx_get_data_addr(mlx->img, &mlx->bpx, &mlx->size, &mlx->end);
+//	ft_bzero(mlx->data, mlx->bpx / 8 * mlx->height * mlx->width);
 	i = 0;
 	ret = 0;
 	while (i < RAYCAST_THREADS && !ret)
@@ -683,6 +705,7 @@ void	ft_threads(t_mlx *mlx)
 	i = 0;
 	while (i < RAYCAST_THREADS)
 		pthread_join(t[i++].thread, NULL);
+//	ft_fast_memcpy(mlx->data, mlx->data, mlx->bpx / 8 * mlx->height * mlx->width);
 	mlx_put_image_to_window(mlx->mlx, mlx->win, mlx->img, 0, 0);
 }
 
@@ -703,6 +726,157 @@ void	ft_move_mobs(t_mlx *mlx)
 		dirY = 1;
 	mlx->map->sprites[0].x += (double)dirX * 0.01;
 	mlx->map->sprites[0].y += (double)dirY * 0.01;
+
+	mlx->map->sprites[0].x = roundf(100 * mlx->map->sprites[0].x) / 100;
+	mlx->map->sprites[0].y = roundf(100 * mlx->map->sprites[0].y) / 100;
+}
+
+void	ft_invert_cols_square_2d_matrix(int **dest, int **src, int size)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	while (i < size)
+	{
+		j = 0;
+		while (j < size)
+		{
+			dest[i][j] = src[size - i - 1][j];
+			j++;
+		}
+		i++;
+	}
+}
+
+void	ft_invert_rows_square_2d_matrix(int **dest, int **src, int size)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	while (i < size)
+	{
+		j = 0;
+		while (j < size)
+		{
+			dest[i][j] = src[i][size -j -1];
+			j++;
+		}
+		i++;
+	}
+}
+
+void	ft_transpose_square_2d_matrix(int **dest, int **src, int size)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	while (i < size)
+	{
+		j = 0;
+		while (j < size)
+		{
+			dest[j][i] = src[i][j];
+			j++;
+		}
+		i++;
+	}
+}
+
+int		ft_rot_p2(int **dest, int **src, int size, int angle)
+{
+	if (angle == 90)
+		ft_invert_rows_square_2d_matrix(dest, src, size);
+	else if (angle == 180 || angle == 270)
+		ft_invert_cols_square_2d_matrix(dest, src, size);
+	return (0);
+}
+
+int		**ft_rotate_2d(int **src, int size, int angle)
+{
+	int	i;
+	int	**dest;
+	int	**tmp;
+
+	i = -1;
+	if (!(dest = (int**)malloc(sizeof(int*) * size)))
+		ft_exit(NULL);
+	if (!(tmp = (int**)malloc(sizeof(int*) * size)))
+		ft_exit(NULL);
+	while (++i < size)
+	{
+		if (!(tmp[i] = (int*)malloc(sizeof(int) * size)) || 
+				!(dest[i] = (int*)malloc(sizeof(int) * size)))
+			ft_exit(NULL);
+	}
+	if (angle == 90)
+		ft_transpose_square_2d_matrix(tmp, src, size);
+	else if (angle == 180)
+		ft_invert_rows_square_2d_matrix(tmp, src, size);
+	else if (angle == 270)
+		ft_transpose_square_2d_matrix(tmp, src, size);
+	ft_rot_p2(dest, tmp, size, angle);
+	return (dest);
+}
+/*
+short	ft_getarrowdir(double x, double y)
+{
+	double	vect;
+
+	vect = 0;
+	return (vect);
+}
+*/
+void	ft_draw_arrow(t_mlx *mlx)
+{
+	int	***arrow;
+	if (mlx->map->id != 1)
+		return ;
+//	double	dirX;
+//	double	dirY;
+//	short	dir;
+	arrow = ((t_mazedata*)mlx->mapdata)->arrow;
+//	dirX = ((t_mazedata*)mlx->mapdata)->exit[0] - mlx->cam.posX;
+//	dirY = ((t_mazedata*)mlx->mapdata)->exit[1] - mlx->cam.posX;
+//	dir = get_arrowdir(dirX, dirY);
+	int	i = 0;
+	while (i < 64)
+	{
+		int	j = 0;
+		while (j < 64)
+		{
+			if ((arrow[6][i][j] & 0x00FFFFFF) != 0x00FEFEFF)
+				ft_place_pixel(arrow[6][i][j], i + 566, j + 32, mlx);
+			j++;
+		}
+		i++;
+	}
+}
+
+
+
+void	ft_maze_loop(t_mlx *mlx)
+{
+	if (mlx->map->map[(int)mlx->cam.posX][(int)mlx->cam.posY] == -1)
+	{
+		ft_load_screen(mlx);
+	}
+	else
+	{
+		ft_putendl("shitty code part");
+		ft_draw_arrow(mlx);
+	}
+	mlx_put_image_to_window(mlx->mlx, mlx->win, mlx->img, 0, 0);
+}
+
+void	ft_map_fct(t_mlx *mlx)
+{
+	if (mlx->map->id == 1)
+	{
+		ft_maze_loop(mlx);
+	}
 }
 
 int	loop(void *ptr)
@@ -712,13 +886,19 @@ int	loop(void *ptr)
 	mlx = (t_mlx*)ptr;
 	if (!mlx->loading)
 	{
-		ft_move(mlx);
 		mlx->cam.target = 0;
 		mlx->cam.posX = roundf(mlx->cam.posX * 100) / 100;
 		mlx->cam.posY = roundf(mlx->cam.posY * 100) / 100;
 		if (mlx->map->id == 1)
 			ft_move_mobs(mlx);
 		ft_threads(mlx);
+		ft_move(mlx);
+		ft_map_fct(mlx);
+	}
+	else
+	{
+//		ft_fast_memcpy(mlx->imgdata, mlx->data, mlx->bpx / 8 * mlx->height * mlx->width);
+//		mlx_put_image_to_window(mlx->mlx, mlx->win, mlx->img, 0, 0);
 	}
 	//	raycast(mlx);
 	return (0);
@@ -726,7 +906,7 @@ int	loop(void *ptr)
 #include <locale.h>
 #include <stdio.h>
 
-int		free_text(int ***text, int nb)
+int		free_text(int ***text, int nb, int wid)
 {
 	int	i;
 	int	j;
@@ -737,7 +917,7 @@ int		free_text(int ***text, int nb)
 	while (i < nb && text[i])
 	{
 		j = 0;
-		while (j < TEXWID && text[i][j])
+		while (j < wid && text[i][j])
 		{
 			free(text[i][j]);
 			j++;
@@ -766,8 +946,13 @@ int		free_map(t_map *map)
 	i = 0;
 	if (map->sprites)
 		free(map->sprites);
-	free_text(map->textures, map->nbtextures);
+	free_text(map->textures, map->nbtextures, TEXWID);
 	return (0);
+}
+
+void	load_load(t_mlx *mlx)
+{
+	mlx = 0;
 }
 
 t_map	*load_map(int id, t_map **oldmap, t_mlx *mlx)
@@ -781,9 +966,16 @@ t_map	*load_map(int id, t_map **oldmap, t_mlx *mlx)
 	if (id == 0)
 		map = ft_start_map();
 	else if (id == 1)
+	{
 		map = mazegen(64, 4);
+/*		mlx->exit = bmp_to_array(TEXT_PATH"arrow.bmp", 64, 64);
+		int	i = 0;
+		mlx->exittmp = (t_point**)malloc(sizeof(t_point*) * 64);
+		while (i < 64)
+			mlx->exittmp[i++] = (t_point*)malloc(sizeof(t_point) * 64);
+*/	}
 	else
-		map = slidegen(20, 200, 3);
+		map = slidegen(16, 200, 3);
 	mlx->cam.posX = map->startx + 0.5;
 	mlx->cam.posY = map->starty + 0.5;
 	mlx->cam.dirX = -1;
@@ -791,20 +983,23 @@ t_map	*load_map(int id, t_map **oldmap, t_mlx *mlx)
 	mlx->cam.planeX = 0;
 	mlx->cam.planeY = 0.66;
 	mlx->movespeed = (map->id == 1) ? 0.05 : 0.1;
+	rotate_view(-PI / 2, mlx);
 	map->textures = load_text(map, map->id);
 	map->hit = (map->id == 0)? 6 : 1;
 	mlx->map = map;
+	ft_putendl("???");
+	if (id == 1)
+		mlx->mapdata = ft_getmazedata(mlx);
 /*	int	i;
 	i = 0;
 	if (oldmap)
 	{
-		while (i < (*oldmap)->width)
-			free((*oldmap)->map[i++]);
-		free((*oldmap)->map);
-		free(*oldmap);
+	while (i < (*oldmap)->width)
+	free((*oldmap)->map[i++]);
+	free((*oldmap)->map);
+	free(*oldmap);
 	}
 	*/
-//	sleep(5);
 	mlx->loading = 0;
 	ft_putstr("map and textures both loaded\n");
 	return (map);
@@ -853,7 +1048,7 @@ int	main(void)
 	mlx.cam.posX = mlx.map->startx + 0.5;
 	mlx.cam.posY = mlx.map->starty + 0.5;
 	if (!(mlx.keys = (t_keys*)malloc(sizeof(t_keys) * 4)))
-		return (-1);
+		ft_exit(NULL);
 	mlx.keys[0].key = KEY_UP;
 	mlx.keys[1].key = KEY_DOWN;
 	mlx.keys[2].key = KEY_LEFT;
@@ -863,7 +1058,7 @@ int	main(void)
 	mlx.keys[2].pressed = 0;
 	mlx.keys[3].pressed = 0;
 	mlx.height = 1000;
-	mlx.width = 1000;
+	mlx.width = 1200;
 	mlx.mlx = mlx_init();
 	mlx.win = mlx_new_window(mlx.mlx, mlx.width, mlx.height, "Wolf3D");
 	mlx.img = NULL;
@@ -872,7 +1067,7 @@ int	main(void)
 		while (x < mlx.map->mapwid)
 		{
 		y = 0;
-		mlx.map->map[x] = (char*)malloc(sizeof(char) * (mlx.map->maphei + 1));
+		//mlx.map->map[x] = (char*)malloc(sizeof(char) * (mlx.map->maphei + 1));
 		while (y < mlx.map->maphei)
 		{
 		if ((x == 0 || x == 63 || y == 0 || y == 63) || (x == 30 && y > 20 && y < 50 && y != 32))

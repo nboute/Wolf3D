@@ -6,7 +6,7 @@
 /*   Bx: nboute <marviny42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/08 18:55:12 bx nboute            #+#    #+#             */
-/*   Updated: 2017/07/22 18:58:11 by nboute           ###   ########.fr       */
+/*   Updated: 2017/08/23 19:55:54 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,61 @@ void	draw_box(t_map *maze, int y, int x)
 	}
 }
 
+int		***ft_arrow(void)
+{
+	int	***arrow;
+
+	if (!(arrow = (int***)malloc(sizeof(int**) * 8)))
+		ft_exit(NULL);
+	arrow[0] = bmp_to_array(TEXT_PATH"arrow.bmp", 64, 64);
+	arrow[1] = bmp_to_array(TEXT_PATH"arrow_ul.bmp", 64, 64);
+	ft_putendl("l");
+	arrow[2] = ft_rotate_2d(arrow[0], 64, 270);
+	ft_putendl("dl");
+	arrow[3] = ft_rotate_2d(arrow[1], 64, 270);
+	ft_putendl("d");
+	arrow[4] = ft_rotate_2d(arrow[0], 64, 180);
+	ft_putendl("dr");
+	arrow[5] = ft_rotate_2d(arrow[1], 64, 180);
+	ft_putendl("r");
+	arrow[6] = ft_rotate_2d(arrow[0], 64, 90);
+	ft_putendl("ur");
+	arrow[7] = ft_rotate_2d(arrow[1], 64, 90);
+	return (arrow);
+}
+
+t_mazedata	*ft_getmazedata(t_mlx *mlx)
+{
+	int		i;
+	int		j;
+	char	**map;
+	t_mazedata	*data;
+
+	i = 1;
+	ft_putchar('a');
+	if (!(data = malloc(sizeof(t_mazedata))))
+		ft_exit(NULL);
+	map = mlx->map->map;
+	while (i < mlx->map->width - 1)
+	{
+		j = 1;
+		while (j < mlx->map->height - 1)
+		{
+			if (map[i][j] == 0 && (map[i][j + 1] == -1 || map[i][j - 1] == -1
+						|| map[i + 1][j] == -1 || map[i - 1][j] == -1))
+			{
+				data->exit[0] = i;
+				data->exit[1] = j;
+			}
+			j++;
+		}
+		i++;
+	}
+	ft_putchar('b');
+	data->arrow = ft_arrow();
+	ft_putchar('c');
+	return (data);
+}
 
 
 int		print_grid(t_map *maze, int mx, int my)
@@ -148,24 +203,31 @@ void	create_exit(char **maze, int h_w, int out)
 	int	rnd;
 	int	y;
 	int	x;
+	int	exit;
 
-	rnd = rand() % ((h_w - out * 2) * 2);
-	if (rnd % 4 < 2)
+	exit = 0;
+	while (!exit)
 	{
-		y = (rnd % 2) * (h_w - out) + 1;
-		while (y < h_w && y > out)
+		rnd = rand() % ((h_w - out * 2) * 2);
+		if (rnd % 4 < 2)
 		{
-			maze[(rnd / 4) * 2 + out][y] = -1;
-			y++;
+			y = (h_w - out) + 1;
+			while (y < h_w - 1)
+			{
+				exit = 1;
+				maze[(rnd / 4) * 2 + out][y] = -1;
+				y++;
+			}
 		}
-	}
-	else
-	{
-		x = (rnd % 2) * (h_w - out) + 1;
-		while (x < h_w && x > out)
+		else
 		{
-			maze[x][(rnd / 4) * 2 + out] = -1;
-			x++;
+			x = (h_w - out) + 1;
+			while (x < h_w - 1)
+			{
+				exit = 1;
+				maze[x][(rnd / 4) * 2 + out] = -1;
+				x++;
+			}
 		}
 	}
 }
@@ -177,17 +239,20 @@ t_map	*mazegen(int	size, int out)
 	int	y;
 	int	x;
 	t_map *maze;
-
 	setlocale(LC_ALL, "");
-	maze = (t_map*)malloc(sizeof(t_map));
-	maze->map = (char**)malloc(sizeof(char*) * size);
+	if (!(maze = (t_map*)malloc(sizeof(t_map))))
+		ft_exit(NULL);
+	if (!(maze->map = (char**)malloc(sizeof(char*) * size)))
+		ft_exit(NULL);
 	srand(time(NULL));
 	x = -1;
 	maze->height = size;
 	maze->width = size;
 	while (++x < size)
 	{
-		maze->map[x] = (char*)malloc(sizeof(char) * size);
+		if (!(maze->map[x] = (char*)malloc(sizeof(char) * size)))
+			ft_exit(NULL);
+	printf("|||%p|%d||||\n", maze->map[x], x);
 		y = -1;
 		while (++y < size)
 		{
@@ -201,8 +266,10 @@ t_map	*mazegen(int	size, int out)
 			}
 		}
 	}
-	maze->sprites = (t_sprite*)malloc(sizeof(t_sprite) * 1);
+	if (!(maze->sprites = (t_sprite*)malloc(sizeof(t_sprite) * 1)))
+		ft_exit(NULL);
 	maze->nbsprites = 1;
+	printf("%p||||\n", maze->map);
 	maze->sprites[0].x = 0.0;
 	maze->sprites[0].y = 0.0;
 	maze->sprites[0].texture = 1;

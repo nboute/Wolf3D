@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/20 18:34:12 by nboute            #+#    #+#             */
-/*   Updated: 2017/07/22 17:20:59 by nboute           ###   ########.fr       */
+/*   Updated: 2017/07/24 17:44:52 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,15 @@ t_map	*ft_start_map(void)
 	size_t	j;
 
 	i = 0;
-	map = (t_map*)malloc(sizeof(t_map));
-	map->map = (char**)malloc(sizeof(char*) * 5);
+	if (!(map = (t_map*)malloc(sizeof(t_map))))
+		ft_exit(NULL);
+	if (!(map->map = (char**)malloc(sizeof(char*) * 5)))
+		ft_exit(NULL);
 	while (i < 5)
 	{
 		j = 0;
-		map->map[i] = (char*)malloc(sizeof(char) * 32);
+		if (!(map->map[i] = (char*)malloc(sizeof(char) * 32)))
+		ft_exit(NULL);
 		while (j < 32)
 		{
 			if (i == 0 || i == 4 || j == 0 || j == 31)
@@ -46,7 +49,8 @@ t_map	*ft_start_map(void)
 	map->id = 0;
 //	if (map->sprites)
 //		free(map->sprites);
-	map->sprites = (t_sprite*)malloc(sizeof(t_sprite) * 1);
+	if (!(map->sprites = (t_sprite*)malloc(sizeof(t_sprite) * 2)))
+		ft_exit(NULL);
 	map->sprites[0].x = 2.0;
 	map->sprites[0].y = 10.0;
 	map->sprites[0].texture = 4;

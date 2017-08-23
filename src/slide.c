@@ -6,7 +6,7 @@
 /*   Bx: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/10 15:33:01 bx nboute            #+#    #+#             */
-/*   Updated: 2017/07/22 19:49:32 by nboute           ###   ########.fr       */
+/*   Updated: 2017/08/14 16:48:33 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,16 +21,18 @@ t_map	*slidegen(int width, int height, int densitx)
 	int		y;
 	int		x;
 	int		walls;
-	int		tmp;
+	int		val;
 
 	srand(time(NULL));
-	map = (t_map*)malloc(sizeof(t_map));
+	if (!(map = (t_map*)malloc(sizeof(t_map))))
+		ft_exit(NULL);
 	if (!map)
 	{
 		ft_putendl("fuckyou");
 		exit(-1);
 	}
-	map->map = (char**)malloc(sizeof(char*) * width);
+	if (!(map->map = (char**)malloc(sizeof(char*) * width)))
+		ft_exit(NULL);
 	if (!map->map)
 	{
 		ft_putendl("fuckyoutoo");
@@ -38,20 +40,21 @@ t_map	*slidegen(int width, int height, int densitx)
 	}
 	x = 0;
 	while (x < width)
-		map->map[x++] = (char*)malloc(sizeof(char) *height);
+		if (!(map->map[x++] = (char*)malloc(sizeof(char) *height)))
+			ft_exit(NULL);
 	walls = 0;
 	y = 0;
 	while (y < height)
 	{
 		x = 0;
-		if (walls > 1)
+		if (walls > 3)
 			walls = rand() % densitx;
 		else
 			walls ++;
-		tmp = 0;
+			val = 0;
 		while (x < width)
 		{
-			if (y < 5 || y >= height - 5 || x < 5 || x >= width - 5)
+			if (y < 5 || y >= height - 2 || x < 5 || x >= width - 5)
 				map->map[x][y] = 1;
 			else if (y < 10)
 				map->map[x][y] = 0;
@@ -59,8 +62,8 @@ t_map	*slidegen(int width, int height, int densitx)
 			{
 				if (rand() % densitx == 0)
 				{
-					tmp = 1;
 					map->map[x][y] = 0;
+					val++;
 				}
 				else
 					map->map[x][y] = 1;
@@ -69,8 +72,8 @@ t_map	*slidegen(int width, int height, int densitx)
 				map->map[x][y] = 0;
 			x++;
 		}
-	//	if (!tmp && !walls)
-	//		map->map[x][(rand() % (height - 10)) + 5] = 0;
+		if (!val)
+			map->map[(rand() % (width - 10)) + 5][y] = 0;
 		y++;
 	}
 	map->nbsprites = 0;

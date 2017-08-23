@@ -6,7 +6,7 @@
 #    By: nboute <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/01/04 20:02:22 by nboute            #+#    #+#              #
-#    Updated: 2017/07/22 13:21:32 by nboute           ###   ########.fr        #
+#    Updated: 2017/07/25 17:11:48 by nboute           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,6 +21,7 @@ LIBFT = libft/libft.a
 MLX = -L ./minilibx_macos -lmlx -framework OpenGL -framework AppKit
 
 LIBMLX = minilibx_macos/mlx.a
+
 
 PTHREAD = -lpthread -D_REENTRANT
 
@@ -38,7 +39,8 @@ SRCS = raycasting_basics.c \
 	   maze.c \
 	   loadbmp.c \
 	   maps.c \
-	   slide.c
+	   slide.c \
+	   ft_load_screen.c
 
 SRC = $(addprefix $(C_DIR), $(SRCS))
 
