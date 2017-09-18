@@ -6,7 +6,7 @@
 #    By: nboute <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/01/04 20:02:22 by nboute            #+#    #+#              #
-#    Updated: 2017/07/25 17:11:48 by nboute           ###   ########.fr        #
+#    Updated: 2017/09/18 18:11:09 by nboute           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,7 +40,8 @@ SRCS = raycasting_basics.c \
 	   loadbmp.c \
 	   maps.c \
 	   slide.c \
-	   ft_load_screen.c
+	   ft_load_screen.c \
+	   load_textures.c
 
 SRC = $(addprefix $(C_DIR), $(SRCS))
 

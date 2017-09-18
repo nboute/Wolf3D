@@ -6,11 +6,12 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/07 10:52:16 by nboute            #+#    #+#             */
-/*   Updated: 2017/08/23 21:32:40 by nboute           ###   ########.fr       */
+/*   Updated: 2017/09/18 19:55:22 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/header.h"
+#include "../inc/bitmap.h"
 #include <math.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -33,82 +34,6 @@ void	ft_exit(void *idc)
 	exit(-1);
 }
 
-int		noise(void)
-{
-	int	noise;
-
-	noise = (rand() % 32768) / 32768;
-	return (65536 * noise + 256 * noise + noise);
-}
-
-int		text_formulas(int t, int x, int y)
-{
-	int	xorcolor;
-	int	ycolor;
-	int	xycolor;
-
-	xorcolor = (x * 256 / 64) ^ (y * 256 / 64);
-	ycolor = y * 256 / 64;
-	xycolor = y * 128 / 64 + x * 128 / 64;
-	if (t == 0)
-		return (65536 * 254 * (x != y && x != 64 - y));
-	else if (t == 1)
-		return (xycolor + 256 * xycolor + 65536 * xycolor);
-	else if (t == 2)
-		return (256 * xycolor + 65536 * xycolor);
-	else if (t == 3)
-		return (xorcolor + 256 * xorcolor + 65536 * xorcolor);
-	else if (t == 4)
-		return (256 * xorcolor);
-	else if (t == 5)
-		return (65536 * 192 * (x % 16 && y % 16));
-	else if (t == 6)
-		return (65536 * ycolor);
-	else if (t == 7)
-		return (128 + 256 * 128 + 65536 * 128);
-	else if (t == 8)
-		return (noise());
-	return (65536 * (t - 8) * 32 + 256 * x * 4 + y * 4);
-}
-
-int		**load_wall(int wallId)
-{
-	printf("W%d\n", wallId);
-	if (wallId == 0)
-		return (bmp_to_array(TEXT_PATH"brickwall_dark.bmp", 64, 64));
-	else if (wallId == 1)
-		return (bmp_to_array(TEXT_PATH"slide_block.bmp", 64, 64));
-	else if (wallId == 2)
-		return (bmp_to_array(TEXT_PATH"warp_maze.bmp", 64, 64));
-	else if(wallId == 3)
-		return (bmp_to_array(TEXT_PATH"warp_slide.bmp", 64, 64));
-	return (NULL);
-}
-
-int		**load_floor(int	flrId)
-{
-	printf("F%d\n", flrId);
-	if (flrId == 0)
-		return (bmp_to_array(TEXT_PATH"gravel.bmp", 64, 64));
-	else if (flrId == 1)
-		return (bmp_to_array(TEXT_PATH"slide_floor.bmp", 64, 64));
-	else if (flrId == 2)
-		return (bmp_to_array(TEXT_PATH"brickfloor.bmp", 64, 64));
-	else if (flrId == 3)
-		return (bmp_to_array(TEXT_PATH"red_dall.bmp", 64, 64));
-	return (NULL);
-}
-
-int		**load_sprite(int	texId)
-{
-	printf("S%d\n", texId);
-	if (texId == 0)
-		return (bmp_to_array(TEXT_PATH"uwut.bmp", 64, 64));
-	else if (texId == 1)
-		return (bmp_to_array(TEXT_PATH"barrel.bmp", 64, 64));
-	return (NULL);
-}
-
 int		***load_text(t_map *map, int mapId)
 {
 	int	***textures;
@@ -117,8 +42,10 @@ int		***load_text(t_map *map, int mapId)
 
 	if (mapId == 0)
 		i = 10;
-	else
+	else if (mapId == 1)
 		i = 3;
+	else
+		i = 6;
 	map->nbtextures = i;
 	map->nbsprites = (map->id != 0)? 1 : 2;
 	if (map->id == 2)
@@ -126,11 +53,20 @@ int		***load_text(t_map *map, int mapId)
 	if (!(textures = (int***)malloc(sizeof(int**) * i)))
 		ft_exit(NULL);
 	i = 0;
-	if (mapId)
+	if (mapId == 1)
 	{
 		textures[0] = load_floor(mapId - 1);
 		textures[1] = load_sprite(mapId - 1);
 		textures[2] = load_wall(mapId - 1);
+	}
+	else if (mapId == 2)
+	{
+		textures[0] = load_floor(mapId - 1);
+		textures[1] = load_sprite(mapId - 1);
+		textures[2] = load_wall(mapId - 1);
+		textures[3] = load_wall(mapId + 2);
+		textures[4] = load_wall(mapId + 3);
+		textures[5] = load_wall(mapId + 4);
 	}
 	else
 	{
@@ -285,16 +221,24 @@ void	ft_move_slide(t_mlx *mlx, t_keys *k)
 	double	dirY;
 
 	dirX = 0;
-	dirY = 0;
+	dirY = mlx->movespeed * mlx->frametime;
+	if (mlx->cam.posY < mlx->map->height / 10 && mlx->movespeed < 12)
+		mlx->movespeed += mlx->cam.posY / (mlx->map->height * 8);
+	else if (mlx->cam.posY < (mlx->map->height * 3) / 10 && mlx->cam.posY >= mlx->map->height / 4 && mlx->movespeed < 25)
+		mlx->movespeed += mlx->cam.posY / (mlx->map->height * 16);
+	else if (mlx->cam.posY < (mlx->map->height * 3) / 5 && mlx->cam.posY >= mlx->map->height / 2 && mlx->movespeed < 37)
+		mlx->movespeed += mlx->cam.posY / (mlx->map->height * 32);
+	else if (mlx->movespeed < 50)
+		mlx->movespeed += mlx->cam.posY / (mlx->map->height * 32);
 	if (k[0].pressed && !k[1].pressed)
-		dirY = mlx->movespeed;
+		dirY += mlx->movespeed / 2 * mlx->frametime;
 	else if (k[1].pressed && !k[0].pressed)
-		dirY = -mlx->movespeed;
+		dirY += -mlx->movespeed / 2 * mlx->frametime;
 	if (k[2].pressed && !k[3].pressed)
-		dirX = -mlx->movespeed;
+		dirX = -2 * mlx->frametime;
 	else if (k[3].pressed && !k[2].pressed)
-		dirX = mlx->movespeed;
-	if ((int)(mlx->cam.posY + dirY + 0.1) >= mlx->map->height - 1)
+		dirX = 2 * mlx->frametime;
+	if ((int)(mlx->cam.posY + dirY + 0.1) >= mlx->map->height - 10)
 		{
 			load_map(0, &mlx->map, mlx);
 			ft_putendl("youwin");
@@ -309,9 +253,8 @@ void	ft_move_slide(t_mlx *mlx, t_keys *k)
 		}
 		else
 		{
-			mlx->cam.posY += 0.1 + dirY;
+			mlx->cam.posY += dirY;
 			mlx->cam.posX += dirX;
-			printf("%lf|%lf\n", mlx->cam.posX, mlx->cam.posY);
 		}
 }
 
@@ -353,8 +296,8 @@ void	ft_move(t_mlx *mlx)
 	hbx[0] = (mlx->cam.dirX > 0) ? 0.10 : -0.10;
 	hbx[1] = (mlx->cam.dirY > 0) ? 0.10 : -0.10;
 	k = mlx->keys;
-	val[0] = mlx->cam.dirX * mlx->movespeed;
-	val[1] = mlx->cam.dirY * mlx->movespeed;
+	val[0] = mlx->cam.dirX * (5.0 * mlx->frametime);
+	val[1] = mlx->cam.dirY * (5.0 * mlx->frametime);
 	val[2] = mlx->cam.posX + val[0];
 	val[3] = mlx->cam.posY + val[1];
 	if (mlx->map->id == 2)
@@ -365,7 +308,9 @@ void	ft_move(t_mlx *mlx)
 			if (map[(int)(val[2] + hbx[0])][(int)(mlx->cam.posY + hbx[1])] <
 				mlx->map->hit && map[(int)(val[2])][(int)(mlx->cam.posY)] <
 				mlx->map->hit)
+			{
 				mlx->cam.posX += val[0];
+			}
 		if (val[3] + hbx[1] >= 0 && (int)(val[3] + hbx[1]) < mlx->map->height)
 			if (map[(int)(mlx->cam.posX + hbx[0])][(int)(val[3] + hbx[1])] <
 					mlx->map->hit && map[(int)(mlx->cam.posX)][(int)(val[3])]
@@ -503,6 +448,8 @@ void		raycast_calc_wall(t_mlx *mlx, t_vects *v)
 	v->wallX -= floor(v->wallX);
 	if (mlx->map->id == 0)
 		texNum = mlx->map->map[v->mapX][v->mapY];
+	else if (mlx->map->id == 2)
+		texNum = mlx->map->map[v->mapX][v->mapY] + 1;
 	else
 		texNum = 2;
 	raycast_draw_wall(mlx, v, texNum);
@@ -820,15 +767,17 @@ int		**ft_rotate_2d(int **src, int size, int angle)
 	ft_rot_p2(dest, tmp, size, angle);
 	return (dest);
 }
-/*
-short	ft_getarrowdir(double x, double y)
-{
-	double	vect;
 
-	vect = 0;
-	return (vect);
+short	ft_getarrowdir(double x, double y, double Ex, double Ey)
+{
+	int		angle;
+
+	angle = ((int)((atan2(Ex * y - Ey * x, Ex * x + Ey * y)) * 180) / PI);
+	if (angle < 0)
+		angle += 360;
+	return (((angle + 22) / 45) % 8);
 }
-*/
+
 void	ft_draw_arrow(t_mlx *mlx)
 {
 	int	***arrow;
@@ -840,21 +789,20 @@ void	ft_draw_arrow(t_mlx *mlx)
 	arrow = ((t_mazedata*)mlx->mapdata)->arrow;
 //	dirX = ((t_mazedata*)mlx->mapdata)->exit[0] - mlx->cam.posX;
 //	dirY = ((t_mazedata*)mlx->mapdata)->exit[1] - mlx->cam.posX;
-//	dir = get_arrowdir(dirX, dirY);
+	mlx->arrowdir = ft_getarrowdir(mlx->cam.dirX, mlx->cam.dirY, ((t_mazedata*)(mlx->mapdata))->exit[0] - mlx->cam.posX, ((t_mazedata*)mlx->mapdata)->exit[1] - mlx->cam.posY);
 	int	i = 0;
 	while (i < 64)
 	{
 		int	j = 0;
 		while (j < 64)
 		{
-			if ((arrow[6][i][j] & 0x00FFFFFF) != 0x00FEFEFF)
-				ft_place_pixel(arrow[6][i][j], i + 566, j + 32, mlx);
+			if ((arrow[mlx->arrowdir][i][j] & 0x00FFFFFF) != 0x00FEFEFF)
+				ft_place_pixel(arrow[mlx->arrowdir][i][j], i + 566, j + 32, mlx);
 			j++;
 		}
 		i++;
 	}
 }
-
 
 
 void	ft_maze_loop(t_mlx *mlx)
@@ -884,6 +832,10 @@ int	loop(void *ptr)
 	t_mlx *mlx;
 
 	mlx = (t_mlx*)ptr;
+	printf("%lf\n", mlx->cam.posY);
+	mlx->frametime = (double)(mlx->time - mlx->oldtime) / (double)CLOCKS_PER_SEC;
+	mlx->oldtime = mlx->time;
+	mlx->time = clock();
 	if (!mlx->loading)
 	{
 		mlx->cam.target = 0;
@@ -897,6 +849,7 @@ int	loop(void *ptr)
 	}
 	else
 	{
+		sleep(2);
 //		ft_fast_memcpy(mlx->imgdata, mlx->data, mlx->bpx / 8 * mlx->height * mlx->width);
 //		mlx_put_image_to_window(mlx->mlx, mlx->win, mlx->img, 0, 0);
 	}
@@ -975,19 +928,18 @@ t_map	*load_map(int id, t_map **oldmap, t_mlx *mlx)
 			mlx->exittmp[i++] = (t_point*)malloc(sizeof(t_point) * 64);
 */	}
 	else
-		map = slidegen(16, 200, 3);
+		map = slidegen(16, 2000, 20);
 	mlx->cam.posX = map->startx + 0.5;
 	mlx->cam.posY = map->starty + 0.5;
 	mlx->cam.dirX = -1;
 	mlx->cam.dirY = 0;
 	mlx->cam.planeX = 0;
 	mlx->cam.planeY = 0.66;
-	mlx->movespeed = (map->id == 1) ? 0.05 : 0.1;
+	mlx->movespeed = (map->id == 2) ? 8 : 0.5;
 	rotate_view(-PI / 2, mlx);
 	map->textures = load_text(map, map->id);
 	map->hit = (map->id == 0)? 6 : 1;
 	mlx->map = map;
-	ft_putendl("???");
 	if (id == 1)
 		mlx->mapdata = ft_getmazedata(mlx);
 /*	int	i;
@@ -1031,7 +983,6 @@ int	main(void)
 
 	t_map maze;
 
-	printf("%s\n", TEXT_PATH);
 	mlx.loading = 1;
 	setlocale(LC_ALL, "");
 	srand(time(NULL));
@@ -1080,6 +1031,8 @@ int	main(void)
 		x++;
 		}*/
 	mlx.rotspeed = 0.05;
+	mlx.time = 0;
+	mlx.oldtime = 0;
 	//	mlx.map->map[x] = NULL;
 	mlx_hook(mlx.win, 2, 1L<<0, key_pressed, &mlx);
 	mlx_hook(mlx.win, 3, 1L<<1, key_released, &mlx);

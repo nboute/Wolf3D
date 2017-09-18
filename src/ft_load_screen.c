@@ -6,11 +6,12 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/24 20:07:40 by nboute            #+#    #+#             */
-/*   Updated: 2017/08/23 18:21:37 by nboute           ###   ########.fr       */
+/*   Updated: 2017/09/18 18:10:44 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/header.h"
+#include "../inc/bitmap.h"
 
 #include <stdio.h>
 int			ft_gradation(unsigned int col, unsigned int col2, int p)

@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/07 10:45:11 by nboute            #+#    #+#             */
-/*   Updated: 2017/08/23 16:34:52 by nboute           ###   ########.fr       */
+/*   Updated: 2017/09/18 18:43:54 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,12 @@
 # include "../minilibx_macos/mlx.h"
 # include "../libft/libft.h"
 # include <pthread.h>
-# define RAYCAST_THREADS 4
+# include <time.h>
+# define RAYCAST_THREADS 8
 # define KEY_UP 126
 # define KEY_DOWN 125
 # define KEY_LEFT 123
 # define KEY_RIGHT 124
-# define TEXT_PATH "/Users/nboute/Projets/Github/Wolf3D/textures/"
 # define TEXWID 64
 # define TEXHEI 64
 # define PI 3.14159265359
@@ -142,6 +142,7 @@ typedef struct	s_mazedata
 {
 	int			***arrow;
 	int			exit[2];
+	short		hp;
 }				t_mazedata;
 
 typedef struct	s_mlx
@@ -165,13 +166,16 @@ typedef struct	s_mlx
 	double		movespeed;
 	double		rotspeed;
 	double		zbuff[1200];
+	short		arrowdir;
 	short		loading;
 	void		*mapdata;
+	clock_t		time;
+	clock_t		oldtime;
+	double		frametime;
 }				t_mlx;
 
 t_map	*mazegen(int	size, int out);
 int		print_grid(t_map *maze, int mx, int my);
-int		**bmp_to_array(char *name, int width, int height);
 t_map	*slidegen(int width, int height, int density);
 t_map	*ft_start_map();
 t_map	*load_map(int id, t_map **oldmap, t_mlx *mlx);

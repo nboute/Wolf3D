@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/12 15:14:34 by nboute            #+#    #+#             */
-/*   Updated: 2017/09/18 18:14:18 by nboute           ###   ########.fr       */
+/*   Updated: 2017/09/18 17:43:40 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include <unistd.h>
 #include <fcntl.h>
-# define TEXT_PATH "/Users/nboute/Projets/Github/Wolf3D/textures/"
+# define TEXT_PATH "~/Projets/Github/Wolf3D/textures/"
 # define BUF_SIZE 64
 
 typedef struct		s_bmp_hd
@@ -43,8 +43,5 @@ typedef struct		s_bmp_if
 }					t_bmp_if;
 
 int		**bmp_to_array(char *name, int width, int height);
-int		**load_wall(int mapId);
-int		**load_floor(int	mapId);
-int		**load_sprite(int	mapId);
 
 #endif

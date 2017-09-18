@@ -6,7 +6,7 @@
 /*   Bx: nboute <marviny42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/08 18:55:12 bx nboute            #+#    #+#             */
-/*   Updated: 2017/08/23 19:55:54 by nboute           ###   ########.fr       */
+/*   Updated: 2017/09/18 17:56:31 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "../inc/header.h"
+#include "../inc/bitmap.h"
 
 void	draw_box(t_map *maze, int y, int x)
 {
@@ -82,20 +83,14 @@ int		***ft_arrow(void)
 
 	if (!(arrow = (int***)malloc(sizeof(int**) * 8)))
 		ft_exit(NULL);
-	arrow[0] = bmp_to_array(TEXT_PATH"arrow.bmp", 64, 64);
-	arrow[1] = bmp_to_array(TEXT_PATH"arrow_ul.bmp", 64, 64);
-	ft_putendl("l");
-	arrow[2] = ft_rotate_2d(arrow[0], 64, 270);
-	ft_putendl("dl");
-	arrow[3] = ft_rotate_2d(arrow[1], 64, 270);
-	ft_putendl("d");
-	arrow[4] = ft_rotate_2d(arrow[0], 64, 180);
-	ft_putendl("dr");
-	arrow[5] = ft_rotate_2d(arrow[1], 64, 180);
-	ft_putendl("r");
-	arrow[6] = ft_rotate_2d(arrow[0], 64, 90);
-	ft_putendl("ur");
-	arrow[7] = ft_rotate_2d(arrow[1], 64, 90);
+	arrow[6] = bmp_to_array(TEXT_PATH"arrow.bmp", 64, 64);
+	arrow[7] = bmp_to_array(TEXT_PATH"arrow_ul.bmp", 64, 64);
+	arrow[0] = ft_rotate_2d(arrow[6], 64, 270);
+	arrow[1] = ft_rotate_2d(arrow[7], 64, 270);
+	arrow[2] = ft_rotate_2d(arrow[6], 64, 180);
+	arrow[3] = ft_rotate_2d(arrow[7], 64, 180);
+	arrow[4] = ft_rotate_2d(arrow[6], 64, 90);
+	arrow[5] = ft_rotate_2d(arrow[7], 64, 90);
 	return (arrow);
 }
 
@@ -126,9 +121,8 @@ t_mazedata	*ft_getmazedata(t_mlx *mlx)
 		}
 		i++;
 	}
-	ft_putchar('b');
+	data->hp = 100;
 	data->arrow = ft_arrow();
-	ft_putchar('c');
 	return (data);
 }
 
