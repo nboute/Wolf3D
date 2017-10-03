@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/07 10:52:16 by nboute            #+#    #+#             */
-/*   Updated: 2017/09/18 19:55:22 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/02 17:09:43 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ void			ft_place_pixel(int color, int x, int y, t_mlx *mlx)
    {
 
    }*/
+
+// PARTIE A REFAIRE
 void	ft_exit(void *idc)
 {
 	idc = NULL;
@@ -202,7 +204,7 @@ int		key_pressed(int key, void *ptr)
 	}
 	return (0);
 }
-
+// FIN PARTIE A CLEAN
 void	rotate_view(double rotspeed, t_mlx *mlx)
 {
 	double	tmp;
@@ -214,7 +216,7 @@ void	rotate_view(double rotspeed, t_mlx *mlx)
 	mlx->cam.planeX = mlx->cam.planeX * cos(rotspeed) - mlx->cam.planeY * sin(rotspeed);
 	mlx->cam.planeY = tmp * sin(rotspeed) + mlx->cam.planeY * cos(rotspeed);
 }
-
+// PARTIE A CLEAN
 void	ft_move_slide(t_mlx *mlx, t_keys *k)
 {
 	double	dirX;
@@ -222,14 +224,16 @@ void	ft_move_slide(t_mlx *mlx, t_keys *k)
 
 	dirX = 0;
 	dirY = mlx->movespeed * mlx->frametime;
-	if (mlx->cam.posY < mlx->map->height / 10 && mlx->movespeed < 12)
+	if (mlx->movespeed < 50)
+		mlx->movespeed = ft_dmap(mlx->cam.posY, ((mlx->map->height * 2) / 3), 8, 50);
+/*	if (mlx->cam.posY < mlx->map->height / 10 && mlx->movespeed < 12)
 		mlx->movespeed += mlx->cam.posY / (mlx->map->height * 8);
 	else if (mlx->cam.posY < (mlx->map->height * 3) / 10 && mlx->cam.posY >= mlx->map->height / 4 && mlx->movespeed < 25)
 		mlx->movespeed += mlx->cam.posY / (mlx->map->height * 16);
 	else if (mlx->cam.posY < (mlx->map->height * 3) / 5 && mlx->cam.posY >= mlx->map->height / 2 && mlx->movespeed < 37)
 		mlx->movespeed += mlx->cam.posY / (mlx->map->height * 32);
 	else if (mlx->movespeed < 50)
-		mlx->movespeed += mlx->cam.posY / (mlx->map->height * 32);
+		mlx->movespeed += mlx->cam.posY / (mlx->map->height * 32);*/
 	if (k[0].pressed && !k[1].pressed)
 		dirY += mlx->movespeed / 2 * mlx->frametime;
 	else if (k[1].pressed && !k[0].pressed)
@@ -257,7 +261,7 @@ void	ft_move_slide(t_mlx *mlx, t_keys *k)
 			mlx->cam.posX += dirX;
 		}
 }
-
+//
 void	ft_move_2(t_mlx *mlx, t_keys *k, double val[4], double hbx[2])
 {
 	char	**map;
@@ -296,8 +300,8 @@ void	ft_move(t_mlx *mlx)
 	hbx[0] = (mlx->cam.dirX > 0) ? 0.10 : -0.10;
 	hbx[1] = (mlx->cam.dirY > 0) ? 0.10 : -0.10;
 	k = mlx->keys;
-	val[0] = mlx->cam.dirX * (5.0 * mlx->frametime);
-	val[1] = mlx->cam.dirY * (5.0 * mlx->frametime);
+	val[0] = fmin(mlx->cam.dirX * (5.0 * mlx->frametime), 0.25);
+	val[1] = fmin(mlx->cam.dirY * (5.0 * mlx->frametime), 0.25);
 	val[2] = mlx->cam.posX + val[0];
 	val[3] = mlx->cam.posY + val[1];
 	if (mlx->map->id == 2)
@@ -422,6 +426,7 @@ void		raycast_draw_wall(t_mlx *mlx, t_vects *v, int texNum)
 		texY = ((d * 64) / v->lineH) / 256;
 		if (v->side == 1)
 			ft_place_pixel(mlx->map->textures[texNum][texY][texX], v->x, i, mlx);
+//			ft_place_pixel(mlx->map->wall[texNum][texY][texX], v->x, i, mlx);
 		else
 			ft_place_pixel((mlx->map->textures[texNum][texY][texX] >> 1)
 					& 8355711, v->x, i, mlx);
@@ -480,6 +485,8 @@ void		raycast_draw_floor(t_mlx *mlx, t_vects *v,
 			texNum = 1;
 		ft_place_pixel(((mlx->map->textures[texNum][t.flrTexY][t.flrTexX] >> 1)
 						& 8355711), v->x, i, mlx);
+//		ft_place_pixel(((mlx->map->floor[texNum][t.flrTexY][t.flrTexX] >> 1)
+//						& 8355711), v->x, i, mlx);
 		i++;
 	}
 }
@@ -621,9 +628,9 @@ void		*raycast(void	*data)
 			mlx->zbuff[v->x] = v->pwalldt;
 			raycast_calc_floor(mlx, v);
 			v->x++;
+			if (mlx->map->nbsprites)
+				raycast_sprites(mlx, v);
 		}
-		if (mlx->map->nbsprites)
-			raycast_sprites(mlx, v);
 	return (NULL);
 }
 
@@ -832,7 +839,7 @@ int	loop(void *ptr)
 	t_mlx *mlx;
 
 	mlx = (t_mlx*)ptr;
-	printf("%lf\n", mlx->cam.posY);
+	printf("%lf        |       %lf\n", mlx->movespeed, mlx->cam.posY);
 	mlx->frametime = (double)(mlx->time - mlx->oldtime) / (double)CLOCKS_PER_SEC;
 	mlx->oldtime = mlx->time;
 	mlx->time = clock();

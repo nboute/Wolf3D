@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/24 20:07:40 by nboute            #+#    #+#             */
-/*   Updated: 2017/09/18 18:10:44 by nboute           ###   ########.fr       */
+/*   Updated: 2017/09/28 15:43:40 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,13 +29,13 @@ int			ft_gradation(unsigned int col, unsigned int col2, int p)
 	return (col + r * 65536 + g * 256 + b);
 }
 
-void	ft_mix_pixel(t_mlx *mlx, int x, int y, int color, int perc)
+int	ft_mix_pixel(t_mlx *mlx, int x, int y, int color, int perc)
 {
 	int	col2;
 
-	col2 = 0;
 	col2 = *(unsigned*)(mlx->data + y * mlx->size + 4 * x);
 	ft_place_pixel((ft_gradation(col2, color, perc) & 0x00FFFFFF), x, y, mlx);
+	return (0);
 }
 
 
@@ -44,30 +44,24 @@ void	ft_load_screen(t_mlx *mlx)
 	int	**text;
 	int	i;
 	int	j;
+	int	col;
 
 	ft_putendl("loading map");
 	mlx->loading = 1;
-	text = bmp_to_array(TEXT_PATH"youdied.bmp", 400, 1200);
+	text = bmp_to_array(TEXT_PATH"youdied_v2.bmp", 200, 1200);
 	j = 0;
-	while (j < 400)
+	while (j < 200)
 	{
 		i = 0;
 		while (i < 1200)
 		{
-			if (i < 100 && (((i <= j && j < 100) || (i <= abs(400 - j) &&
-								j >= 300)) || (j >= 100 && j < 300)))
-				ft_mix_pixel(mlx, i, j + 300, text[j][i], i);
-			else if (i > 1100 && ((i > 800 + j && j >= 100)
-						|| (abs(1200 - i) <= j && j < 100)))
-				ft_mix_pixel(mlx, i, j + 300, text[j][i], abs(1200 - i));
-			else if (j < 100)
-				ft_mix_pixel(mlx, i, j + 300, text[j][i], j);
-			else if (j > 300)
-				ft_mix_pixel(mlx, i, j + 300, text[j][i], abs(400 - j));
+			col = text[j][i];
+			if (j < 30)
+				ft_mix_pixel(mlx, i, j + 400, text[j][i], j * 3 + 10);
+			else if (j >= 170)
+				ft_mix_pixel(mlx, i, j + 400, text[j][i], (abs(200 - j)) * 3 + 10);
 			else
-			{
-				ft_place_pixel(text[j][i], i, j + 300, mlx);
-			}
+				ft_place_pixel(text[j][i], i, j + 400, mlx);
 			i++;
 		}
 		j++;

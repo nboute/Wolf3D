@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/20 18:34:12 by nboute            #+#    #+#             */
-/*   Updated: 2017/07/24 17:44:52 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/03 19:11:41 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@ t_map	*ft_start_map(void)
 	size_t	j;
 
 	i = 0;
-	if (!(map = (t_map*)malloc(sizeof(t_map))))
-		ft_exit(NULL);
+	map = new_map();
+	get_map_textures(0, map);
 	if (!(map->map = (char**)malloc(sizeof(char*) * 5)))
 		ft_exit(NULL);
 	while (i < 5)

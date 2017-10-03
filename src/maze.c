@@ -6,7 +6,7 @@
 /*   Bx: nboute <marviny42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/08 18:55:12 bx nboute            #+#    #+#             */
-/*   Updated: 2017/09/18 17:56:31 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/02 16:41:36 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,23 +204,20 @@ void	create_exit(char **maze, int h_w, int out)
 	{
 		rnd = rand() % ((h_w - out * 2) * 2);
 		if (rnd % 4 < 2)
-		{
 			y = (h_w - out) + 1;
+		if (rnd % 4 < 2)
 			while (y < h_w - 1)
 			{
 				exit = 1;
-				maze[(rnd / 4) * 2 + out][y] = -1;
-				y++;
+				maze[(rnd / 4) * 2 + out][y++] = -1;
 			}
-		}
 		else
 		{
 			x = (h_w - out) + 1;
 			while (x < h_w - 1)
 			{
 				exit = 1;
-				maze[x][(rnd / 4) * 2 + out] = -1;
-				x++;
+				maze[x++][(rnd / 4) * 2 + out] = -1;
 			}
 		}
 	}

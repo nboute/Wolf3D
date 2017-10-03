@@ -6,7 +6,7 @@
 #    By: nboute <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/01/04 20:02:22 by nboute            #+#    #+#              #
-#    Updated: 2017/09/18 18:11:09 by nboute           ###   ########.fr        #
+#    Updated: 2017/10/03 19:13:33 by nboute           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,7 +41,9 @@ SRCS = raycasting_basics.c \
 	   maps.c \
 	   slide.c \
 	   ft_load_screen.c \
-	   load_textures.c
+	   load_textures.c \
+	   new_struct.c
+#	 move.c
 
 SRC = $(addprefix $(C_DIR), $(SRCS))
 
@@ -49,8 +51,7 @@ OBJ = $(SRCS:.c=.o)
 
 INC = -I includes -I libft/
 
-
-all : $(NAME)
+all : $(LIBMLX) $(NAME)
 
 $(NAME): $(OBJ) $(LIBFT)
 	$(CC) $(MLX) $^ -o $@ $(LIB)

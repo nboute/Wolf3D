@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/07 10:45:11 by nboute            #+#    #+#             */
-/*   Updated: 2017/09/18 18:43:54 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/03 19:13:17 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,13 @@ typedef struct	s_sprite
 	double		x;
 	double		y;
 	int			texture;
-	int			alpha;
 }				t_sprite;
+
+typedef struct	s_sprtex
+{
+	int			**text;
+	int			alpha;
+}				t_sprtex;
 
 typedef struct	s_thread
 {
@@ -132,10 +137,15 @@ typedef struct	s_map
 	int			***textures;
 	int			nbtextures;
 	t_sprite	*sprites;
+	t_sprtex	*sprtex;
+	int			*spralphas;
 	int			nbsprites;
+	int			nbwalls;
+	int			***walls;
+	int			nbfloors;
+	int			***floors;
 	int			out;
 	int			hit;
-
 }				t_map;
 
 typedef struct	s_mazedata
@@ -184,5 +194,7 @@ void			ft_place_pixel(int color, int x, int y, t_mlx *mlx);
 void	ft_load_screen(t_mlx *mlx);
 int		**ft_rotate_2d(int **src, int size, int angle);
 t_mazedata		*ft_getmazedata(t_mlx *mlx);
+void	get_map_textures(unsigned short mapId, t_map *map);
+t_map	*new_map(void);
 
 #endif
