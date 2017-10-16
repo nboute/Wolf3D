@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/18 17:40:56 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/03 19:14:06 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/12 20:20:49 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,40 +105,50 @@ int		***load_text(t_map *map, int mapId)
 	}
 	return (textures);*/
 
+#include <stdio.h>
+
 void	load_textures(char **textnames, t_map *map, int *spralphas)
 {
 	int		i;
 	char	*tmp;
 
+	ft_putendl("loading textures...");
 	tmp = NULL;
 	if (!(map->walls = (int***)malloc(sizeof(int**) * map->nbwalls)))
 		ft_exit(0);
 	if (!(map->floors = (int***)malloc(sizeof(int**) * map->nbfloors)))
 		ft_exit(0);
-	if (!(map->sprtex = (t_sprtex*)malloc(sizeof(t_sprtex) * map->nbsprites)))
-		ft_exit(0);
+	if (map->nbsprites)
+		if (!(map->sprtex = (t_sprtex*)malloc(sizeof(t_sprtex)
+						* map->nbsprites)))
+			ft_exit(0);
 	i = 0;
 	while (i < map->nbwalls)
 	{
-		tmp = ft_strjoin(TEXT_PATH, textnames[i]);
-		map->walls[i++] = bmp_to_array(tmp , 64, 64);
+		tmp = ft_strjoin(TEXT_PATH, textnames[i + 2]);
+		map->walls[i] = bmp_to_array(tmp , 64, 64);
 		ft_strdel(&tmp);
+		i++;
 	}
 	i = 0;
 	while (i < map->nbfloors)
 	{
-		tmp = ft_strjoin(TEXT_PATH, textnames[i + map->nbwalls]);
-		map->floors[map->nbwalls + i++] = bmp_to_array(tmp , 64, 64);
-		ft_strdel(&tmp);
+		tmp = ft_strjoin(TEXT_PATH, textnames[i + map->nbwalls + 3]);
+		map->floors[i] = bmp_to_array(tmp , 64, 64);
+		i++;
 	}
 	i = 0;
 	while (i < map->nbsprites)
 	{
-		tmp = ft_strjoin(TEXT_PATH, textnames[i +
-				map->nbwalls + map->nbfloors]);
-		map->sprtex[i].alpha = spralphas[i];
+		tmp = ft_strjoin(TEXT_PATH, textnames
+				[i + map->nbwalls + map->nbfloors + 4]);
 		map->sprtex[i].text = bmp_to_array(tmp, 64, 64);
+		spralphas[i] = map->sprtex[i].text[0][0];
+		map->sprtex[i].alpha = spralphas[i];
 		ft_strdel(&tmp);
 		i++;
 	}
+	getchar();
+	ft_putendl("no shiet at all o_o");
+	ft_putendl("textures loaded");
 }

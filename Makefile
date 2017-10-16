@@ -6,7 +6,7 @@
 #    By: nboute <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/01/04 20:02:22 by nboute            #+#    #+#              #
-#    Updated: 2017/10/03 19:13:33 by nboute           ###   ########.fr        #
+#    Updated: 2017/10/16 16:41:34 by nboute           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -42,7 +42,14 @@ SRCS = raycasting_basics.c \
 	   slide.c \
 	   ft_load_screen.c \
 	   load_textures.c \
-	   new_struct.c
+	   new_struct.c \
+	   read_textures.c \
+	   actions.c \
+	   move.c \
+	   ft_arrow.c \
+	   ft_draw_arrow.c \
+	   raycast.c \
+	   raycast_setup.c
 #	 move.c
 
 SRC = $(addprefix $(C_DIR), $(SRCS))

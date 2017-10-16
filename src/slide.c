@@ -6,7 +6,7 @@
 /*   Bx: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/10 15:33:01 bx nboute            #+#    #+#             */
-/*   Updated: 2017/09/18 19:54:25 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/16 15:16:39 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,21 +23,13 @@ t_map	*slidegen(int width, int height, int densitx)
 	int		walls;
 	int		val[2];
 
+	ft_putendl("generating slie map");
 	srand(time(NULL));
-	if (!(map = (t_map*)malloc(sizeof(t_map))))
+	if (!(map = new_map()))
 		ft_exit(NULL);
-	if (!map)
-	{
-		ft_putendl("fuckyou");
-		exit(-1);
-	}
+	get_map_textures(2, map);
 	if (!(map->map = (char**)malloc(sizeof(char*) * width)))
 		ft_exit(NULL);
-	if (!map->map)
-	{
-		ft_putendl("fuckyoutoo");
-		exit(-1);
-	}
 	x = 0;
 	while (x < width)
 		if (!(map->map[x++] = (char*)malloc(sizeof(char) *height)))
@@ -77,15 +69,13 @@ t_map	*slidegen(int width, int height, int densitx)
 			}
 			else
 				map->map[x][y] = 0;
-		printf("%d|", map->map[x][y]);
 			x++;
 		}
 		if (!val[0])
 			map->map[(rand() % (width - 10)) + 5][y] = 0;
 		y++;
-		printf("\n");
 	}
-	map->nbsprites = 0;
+	map->nbspr = 0;
 	map->sprites = NULL;
 	map->width = width;
 	map->height = height;

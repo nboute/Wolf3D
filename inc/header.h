@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/07 10:45:11 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/03 19:13:17 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/16 17:55:50 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include "../libft/libft.h"
 # include <pthread.h>
 # include <time.h>
-# define RAYCAST_THREADS 8
+# define RAYCAST_THREADS 1
 # define KEY_UP 126
 # define KEY_DOWN 125
 # define KEY_LEFT 123
@@ -26,7 +26,9 @@
 # define TEXHEI 64
 # define PI 3.14159265359
 # define ABS(x) (x < 0) ? -x : x
-
+# define TEXTURES "/Users/nboute/Projets/Github/Wolf3D/Texures/"
+# define DESC "/Users/nboute/Projets/Github/Wolf3D/desc/"
+# define BASE_HEXA "0123456789ABCDEF"
 typedef struct	s_keys
 {
 	short		key;
@@ -59,33 +61,6 @@ typedef struct	s_thread
 	void		*data;
 	pthread_t	thread;
 }				t_thread;
-
-typedef struct	s_sprinf
-{
-	double		sprX;
-	double		sprY;
-	double		invDet;
-	double		transfX;
-	double		transfY;
-	int			sprscreenX;
-	int			sprHeight;
-	int			sprWidth;
-	int			sprid;
-	int			*sprOrd;
-	double		*sprDist;
-}				t_sprinf;
-
-typedef struct	s_flrinf
-{
-	double		distWall;
-	double		distPlayer;
-	double		currDist;
-	double		weight;
-	double		currFlrX;
-	double		currFlrY;
-	int			flrTexX;
-	int			flrTexY;
-}				t_flrinf;
 
 typedef struct	s_cam
 {
@@ -140,6 +115,7 @@ typedef struct	s_map
 	t_sprtex	*sprtex;
 	int			*spralphas;
 	int			nbsprites;
+	int			nbspr;
 	int			nbwalls;
 	int			***walls;
 	int			nbfloors;
@@ -195,6 +171,16 @@ void	ft_load_screen(t_mlx *mlx);
 int		**ft_rotate_2d(int **src, int size, int angle);
 t_mazedata		*ft_getmazedata(t_mlx *mlx);
 void	get_map_textures(unsigned short mapId, t_map *map);
+void	load_textures(char **textnames, t_map *map, int *spralphas);
 t_map	*new_map(void);
+int		key_released(int key, void *ptr);
+int	mouse_pressed(int button, int x, int y, void *data);
+int		key_pressed(int key, void *ptr);
+void	rotate_view(double rotspeed, t_mlx *mlx);
+void	ft_move(t_mlx *mlx);
+void	ft_draw_arrow(t_mlx *mlx);
+void	*raycast(void	*data);
+void	ft_combsort(int *order, double *dist, int amount);
+t_sprite	*add_sprite(t_map *map, int	texNum, double x, double y);
 
 #endif

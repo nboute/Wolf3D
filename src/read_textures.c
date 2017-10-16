@@ -6,13 +6,14 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/28 14:44:51 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/03 19:10:23 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/12 20:20:32 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/bitmap.h"
 #include "../inc/header.h"
 #include "../libft/libft.h"
+#include <stdio.h>
 
 /*
 ** Part that reads and loads textures according to the .inf files
@@ -27,57 +28,30 @@
 ** line i + j + 7 -> i + j + k + 7: sprite textures names
 */
 
-void	read_inf(int fd, t_map *map)
+void		read_inf(int fd, t_map *map)
 {
 	char	buff[2048];
-	char	**textnames;
-	char	*ptr;
+	char	**tab;
+	int		*spralphas;
 	int		i;
 
 	i = read(fd, buff, 2047);
+	if (!(tab = ft_strsplit(buff, '\n')))
+		ft_exit(0);
 	close(fd);
 	buff[i] = '\0';
-	ptr = ft_strchr(buff, '\n');
-	map->nbtextures = ft_atoi(buff);
-	if (!(textnames = (char**)malloc(sizeof(char*) * (map->nbtextures + 1))))
-		ft_exit(0);
-	if (map->nbtextures)
-		map->textures = (int***)malloc(sizeof(int**) * map->nbtextures);
+	map->nbtextures = ft_atoi(*tab);
+	spralphas = NULL;
 	i = 0;
-	map->nbwalls = ft_atoi(ptr);
-	while (i <= map->nbwalls)
-	{
-		ptr = ft_strchr(ptr, '\n');
-		textnames[i++] = ft_strndup(ptr, ft_strclen(ptr, '\n'));
-	}
-	map->nbfloors = ft_atoi(ptr);
-	i = 0;
-	while (i <= map->nbfloors)
-	{
-		ptr = ft_strchr(ptr, '\n');
-		textnames[i++ + map->nbwalls] = ft_strndup(ptr, ft_strclen(ptr, '\n'));
-	}
+	map->nbwalls = ft_atoi(tab[1]);
+	map->nbfloors = ft_atoi(tab[2 + map->nbwalls]);
+	map->nbsprites = ft_atoi(tab[3 + map->nbwalls + map->nbfloors]);
+	if (map->nbsprites)
+		if (!(spralphas = (int*)malloc(sizeof(int) * map->nbsprites)))
+			ft_exit(0);
+	load_textures(tab, map, spralphas);
 }
 
-void	read_sprites(t_map *map, char *buff, char **textnames)
-{
-	int	i;
-	int		*spralphas;
-
-	map->nbsprites = ft_atoi(buff);
-	spralphas = (int*)malloc(sizeof(int) * map->nbsprites);
-	i = 0;
-	while (i < map->nbsprites)
-	{
-		buff = ft_strchr(buff, '\n');
-		spralphas[i] = ft_atoi(buff);
-		buff = ft_strchr(buff, '\n');
-		textnames[i + map->nbwalls + map->nbfloors] =
-			ft_strndup(buff, ft_strclen(buff, '\n'));
-		i++;
-	}
-	textnames[map->nbtextures] = NULL;
-}
 
 /*
 **vals[0] fd
@@ -92,7 +66,7 @@ void	get_map_textures(unsigned short mapId, t_map *map)
 
 	if (!(buff = (char*)malloc(sizeof(char) * 2048)))
 		ft_exit(0);
-	vals[0] = open("../desc/maps.inf", O_RDONLY);
+	vals[0] = open(DESC"maps.inf", O_RDONLY);
 	vals[1] = read(vals[0], buff, 2047);
 	buff[vals[1]] = '\0';
 	vals[2] = ft_atoi(buff);
@@ -103,10 +77,10 @@ void	get_map_textures(unsigned short mapId, t_map *map)
 	ptr = buff;
 	while (vals[1] <= vals[2] && vals[1] <= mapId)
 	{
-		ptr = ft_strchr(ptr, '\n');
+		ptr = ft_strchr(ptr, '\n') + 1;
 		vals[1]++;
 	}
-	ptr = ft_strndup(ptr, ft_strclen(ptr, '\n'));
+	ptr = ft_strjoinn(DESC, ptr, ft_strclen(ptr, '\n'));
 	vals[0] = open(ptr, O_RDONLY);
 	ft_strdel(&ptr);
 	ft_strdel(&buff);

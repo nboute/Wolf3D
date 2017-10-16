@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/12 15:11:00 by nboute            #+#    #+#             */
-/*   Updated: 2017/08/23 17:44:57 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/08 17:27:34 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ int		**bmp_to_array(char *name, int width, int height)
 	t_bmp_if	inf;
 	int		**texture;
 
+	ft_putendl(name);
 	if ((fd = open(name, O_RDONLY)) <= 1)
 		ft_exit(NULL);
 	buff = (char*)malloc(sizeof(char) * 41);
@@ -68,7 +69,7 @@ int		**bmp_to_array(char *name, int width, int height)
 	y = inf.width;
 	if (!(buff = (char*)malloc(sizeof(char) * ((inf.bits / 8) * (inf.height) + 1))))
 		ft_exit(NULL);
-	printf("loading texture of width %d and height %d\n", inf.width, inf.height);
+//	printf("loading texture of width %d and height %d\n", inf.width, inf.height);
 	ft_putendl(name);
 	while (y && i < inf.imgsize)
 	{
@@ -90,6 +91,6 @@ int		**bmp_to_array(char *name, int width, int height)
 	}
 	ret = read(fd, buff, inf.height * inf.bits / 8);
 	buff[ret] = '\0';
-	printf("\n%s loaded in %p\n", name, texture);
+//	printf("\n%s loaded in %p\n", name, texture);
 	return (texture);
 }

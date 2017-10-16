@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/10/03 16:44:10 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/03 17:06:08 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/16 17:57:30 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,10 +58,36 @@ t_map	*new_map(void)
 	map->sprites = NULL;
 	map->walls = NULL;
 	map->floors = NULL;
+	map->sprtex = NULL;
+	map->nbsprites = 0;
+	map->nbspr = 0;
 	map->nbtextures = 0;
 	map->nbwalls = 0;
 	map->nbfloors = 0;
 	map->out = 0;
 	map->hit = 0;
 	return (map);
+}
+
+t_sprite	*add_sprite(t_map *map, int	texNum, double x, double y)
+{
+	t_sprite	*tmp;
+	int			i;
+
+	tmp = map->sprites;
+	if (!tmp)
+	if (!(map->sprites =
+				(t_sprite*)malloc(sizeof(t_sprite) * (map->nbsprites + 1))))
+		ft_exit(NULL);
+	i = 0;
+	while (i < map->nbsprites && tmp)
+	{
+		map->sprites[i] = tmp[i];
+		i++;
+	}
+	map->nbsprites++;
+	map->sprites[i].x = x;
+	map->sprites[i].y = y;
+	map->sprites[i].texture = texNum;
+	return (map->sprites);
 }

@@ -6,7 +6,7 @@
 /*   Bx: nboute <marviny42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/08 18:55:12 bx nboute            #+#    #+#             */
-/*   Updated: 2017/10/02 16:41:36 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/16 17:54:43 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,6 @@ t_mazedata	*ft_getmazedata(t_mlx *mlx)
 	t_mazedata	*data;
 
 	i = 1;
-	ft_putchar('a');
 	if (!(data = malloc(sizeof(t_mazedata))))
 		ft_exit(NULL);
 	map = mlx->map->map;
@@ -111,8 +110,8 @@ t_mazedata	*ft_getmazedata(t_mlx *mlx)
 		j = 1;
 		while (j < mlx->map->height - 1)
 		{
-			if (map[i][j] == 0 && (map[i][j + 1] == -1 || map[i][j - 1] == -1
-						|| map[i + 1][j] == -1 || map[i - 1][j] == -1))
+			if (map[i][j] == 0 && (map[i][j + 1] == 1 || map[i][j - 1] == 1
+						|| map[i + 1][j] == 1 || map[i - 1][j] == 1))
 			{
 				data->exit[0] = i;
 				data->exit[1] = j;
@@ -175,19 +174,20 @@ int		create_maze(t_map *maze, int oldpos, int movey, int movex)
 	oldpos = x + y * maze->width;
 	movey = 0;
 	movex = 0;
-	while (maze->map[x][y + 2] == 1 || maze->map[x][y - 2] == 1
-			|| maze->map[x + 2][y] == 1 || maze->map[x - 2][y] == 1)
+	while (maze->map[x][y + 2] == 2 || maze->map[x][y - 2] == 2
+			|| maze->map[x + 2][y] == 2 || maze->map[x - 2][y] == 2)
 	{
 		dir = rand() % 4;
-		if (dir == 0 && maze->map[x][y + 2] == 1)
+		if (dir == 0 && maze->map[x][y + 2] == 2)
 			movey = 2;
-		else if (dir == 1 && maze->map[x][y - 2] == 1)
+		else if (dir == 1 && maze->map[x][y - 2] == 2)
 			movey = -2;
-		else if (dir == 2 && maze->map[x + 2][y] == 1)
+		else if (dir == 2 && maze->map[x + 2][y] == 2)
 			movex = 2;
-		else if (dir == 3 && maze->map[x - 2][y] == 1)
+		else if (dir == 3 && maze->map[x - 2][y] == 2)
 			movex = -2;
-		create_maze(maze, oldpos, movey, movex);
+		if (movex || movey)
+			create_maze(maze, oldpos, movey, movex);
 	}
 	return (0);
 }
@@ -209,7 +209,7 @@ void	create_exit(char **maze, int h_w, int out)
 			while (y < h_w - 1)
 			{
 				exit = 1;
-				maze[(rnd / 4) * 2 + out][y++] = -1;
+				maze[(rnd / 4) * 2 + out][y++] = 1;
 			}
 		else
 		{
@@ -217,7 +217,7 @@ void	create_exit(char **maze, int h_w, int out)
 			while (x < h_w - 1)
 			{
 				exit = 1;
-				maze[x++][(rnd / 4) * 2 + out] = -1;
+				maze[x++][(rnd / 4) * 2 + out] = 1;
 			}
 		}
 	}
@@ -225,50 +225,49 @@ void	create_exit(char **maze, int h_w, int out)
 
 #include <locale.h>
 
-t_map	*mazegen(int	size, int out)
+t_map	*mazegen_p2(int size, int out, t_map *maze)
 {
-	int	y;
 	int	x;
-	t_map *maze;
-	setlocale(LC_ALL, "");
-	if (!(maze = (t_map*)malloc(sizeof(t_map))))
-		ft_exit(NULL);
-	if (!(maze->map = (char**)malloc(sizeof(char*) * size)))
-		ft_exit(NULL);
-	srand(time(NULL));
+	int	y;
+
 	x = -1;
-	maze->height = size;
-	maze->width = size;
 	while (++x < size)
 	{
 		if (!(maze->map[x] = (char*)malloc(sizeof(char) * size)))
 			ft_exit(NULL);
-	printf("|||%p|%d||||\n", maze->map[x], x);
 		y = -1;
 		while (++y < size)
 		{
 			if (y < out || y > size - out || x < out || x > size - out)
-			{
-				maze->map[x][y] = 2;
-			}
+				maze->map[x][y] = maze->nbfloors + 1;
 			else
-			{
-				maze->map[x][y] = 1;
-			}
+				maze->map[x][y] = maze->nbfloors;
 		}
 	}
-	if (!(maze->sprites = (t_sprite*)malloc(sizeof(t_sprite) * 1)))
-		ft_exit(NULL);
-	maze->nbsprites = 1;
-	printf("%p||||\n", maze->map);
-	maze->sprites[0].x = 0.0;
-	maze->sprites[0].y = 0.0;
-	maze->sprites[0].texture = 1;
-	print_grid(maze, maze->height, maze->width);
+	add_sprite(maze, 1, 0.0, 0.0);
 	maze->startx = (size / 2) + (size / 2) % 2;
 	maze->starty = maze->startx;
 	maze->id = 1;
-	create_maze(maze, (int)maze->startx + (int)(maze->starty) * maze->width, 0, 0);
+	return (maze);
+}
+
+t_map	*mazegen(int	size, int out)
+{
+	t_map *maze;
+
+	setlocale(LC_ALL, "");
+	if (!(maze = new_map()))
+		ft_exit(NULL);
+	if (!(maze->map = (char**)malloc(sizeof(char*) * size)))
+		ft_exit(NULL);
+	get_map_textures(1, maze);
+	srand(time(NULL));
+	maze->height = size;
+	maze->width = size;
+	maze->hit = maze->nbfloors;
+	mazegen_p2(size, out, maze);
+	create_maze(maze,
+			(int)maze->startx + (int)(maze->starty) * maze->width, 0, 0);
 	create_exit(maze->map, size, out);
 	return (maze);
 }
