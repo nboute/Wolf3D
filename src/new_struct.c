@@ -6,11 +6,12 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/10/03 16:44:10 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/26 15:37:29 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/26 22:46:17 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/header.h"
+#include <stdlib.h>
 
 t_mlx		*init_mlx(t_mlx *ptr)
 {

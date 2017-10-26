@@ -6,12 +6,11 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/10/16 18:28:34 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/26 13:08:07 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/26 20:37:49 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/header.h"
-#include <stdio.h>
 
 void	destroy_arrows(t_mazedata *maze)
 {

@@ -6,38 +6,23 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/26 13:25:14 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/26 19:00:36 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/26 22:46:03 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/header.h"
 #include <math.h>
-#include <stdio.h>
 
-void	rotate_view(double rotspeed, t_mlx *mlx)
+int		ft_try_hit_front(t_mlx *mlx, double diry, double dirx, double posy)
 {
-	double	tmp;
-
-	tmp = mlx->cam.dirx;
-	mlx->cam.dirx = mlx->cam.dirx * cos(rotspeed)
-		- mlx->cam.diry * sin(rotspeed);
-	mlx->cam.diry = tmp * sin(rotspeed) + mlx->cam.diry * cos(rotspeed);
-	tmp = mlx->cam.planex;
-	mlx->cam.planex = mlx->cam.planex * cos(rotspeed)
-		- mlx->cam.planey * sin(rotspeed);
-	mlx->cam.planey = tmp * sin(rotspeed) + mlx->cam.planey * cos(rotspeed);
-}
-
-int		ft_try_hit_front(t_mlx *mlx, double diry, double dirx)
-{
-	double	posy;
 	double	iter;
 
-	posy = mlx->cam.posy;
-	iter = 0;
-	while (iter + 2 < diry)
+	iter = -1;
+	while (++iter + 2 < diry)
 	{
-		if (posy + iter <= 1 || posy + 1 >= mlx->map->width - 1)
+		if (posy + iter <= 1 || posy + 1 >= mlx->map->height - 1 ||
+				mlx->cam.posx + dirx <= 1.1 || mlx->cam.posx + dirx >=
+				((double)mlx->map->width - 1.1))
 			return (-1);
 		if (mlx->map->map[(int)mlx->cam.posx][(int)(posy + iter)]
 				>= mlx->map->hit)
@@ -47,7 +32,6 @@ int		ft_try_hit_front(t_mlx *mlx, double diry, double dirx)
 				mlx->map->map[(int)(mlx->cam.posx + dirx * iter / diry - 0.10)]
 				[(int)(mlx->cam.posy + iter)] >= mlx->map->hit)
 			return (-1);
-		iter += (double)1;
 	}
 	if (mlx->map->map[(int)(mlx->cam.posx + dirx)][(int)(posy + diry)]
 			>= mlx->map->hit)
@@ -77,8 +61,10 @@ void	ft_move_slide(t_mlx *mlx)
 	if ((int)(mlx->cam.posy + diry + 0.1) >= mlx->map->height - 10)
 		load_map(0, &mlx->map, mlx);
 	else
-		if (ft_try_hit_front(mlx, diry, dirx))
+	{
+		if (ft_try_hit_front(mlx, diry, dirx, mlx->cam.posy))
 			ft_load_screen(mlx);
+	}
 }
 
 int		try_move(t_mlx *mlx, double *hbx, double *val, char **map)

@@ -6,12 +6,11 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/10/16 16:34:45 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/26 16:28:36 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/26 22:46:39 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/raycast.h"
-#include <stdio.h>
 
 void			raycast_draw_wall(t_mlx *mlx, t_vects *v, int texnum)
 {

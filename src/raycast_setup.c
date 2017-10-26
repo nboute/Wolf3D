@@ -6,13 +6,12 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/10/16 16:31:02 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/26 16:41:03 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/26 22:46:46 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/raycast.h"
 #include <math.h>
-#include <stdio.h>
 
 void		raycast_setparams(t_mlx *mlx, t_vects *v, int x)
 {

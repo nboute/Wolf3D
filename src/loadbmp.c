@@ -6,14 +6,13 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/12 15:11:00 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/26 19:02:09 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/26 22:45:40 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/bitmap.h"
 #include "../inc/header.h"
 #include <stdlib.h>
-#include <stdio.h>
 
 void				read_data(int fd, t_bmp_hd *head, t_bmp_if *inf)
 {

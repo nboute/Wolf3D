@@ -6,12 +6,10 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/10/17 15:23:20 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/26 19:03:01 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/26 22:47:45 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <time.h>
 #include <stdlib.h>
 #include "../inc/header.h"
 

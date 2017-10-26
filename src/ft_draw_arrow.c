@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/10/16 15:51:49 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/25 21:52:36 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/26 20:59:17 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	ft_draw_arrow(t_mlx *mlx)
 	int	i;
 	int	j;
 
-	if (mlx->map->id != 1)
+	if (mlx->map->id != 1 || !mlx->mapdata)
 		return ;
 	arrow = ((t_mazedata*)mlx->mapdata)->arrow;
 	if (arrow)

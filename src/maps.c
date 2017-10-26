@@ -6,12 +6,11 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/20 18:34:12 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/26 16:36:29 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/26 22:49:56 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/header.h"
-#include <stdio.h>
 
 void	ft_maze_loop(t_mlx *mlx)
 {
@@ -93,7 +92,7 @@ t_map	*load_map(int id, t_map **oldmap, t_mlx *mlx)
 	else if (id == 1)
 		map = mazegen(64, 4);
 	else
-		map = slidegen(16, 2000);
+		map = slidegen(16, 3000);
 	mlx->cam.posx = map->startx + 0.5;
 	mlx->cam.posy = map->starty + 0.5;
 	mlx->cam.dirx = -1;
@@ -105,7 +104,7 @@ t_map	*load_map(int id, t_map **oldmap, t_mlx *mlx)
 	map->hit = map->nbfloors;
 	mlx->map = map;
 	if (id == 1)
-		mlx->mapdata = ft_getmazedata(mlx);
+		mlx->mapdata = ft_getmazedata(mlx, 0, 0);
 	mlx->loading = 0;
 	return (map);
 }
