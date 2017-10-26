@@ -6,7 +6,7 @@
 #    By: nboute <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/01/04 20:02:22 by nboute            #+#    #+#              #
-#    Updated: 2017/10/16 16:41:34 by nboute           ###   ########.fr        #
+#    Updated: 2017/10/26 19:06:33 by nboute           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -49,25 +49,27 @@ SRCS = raycasting_basics.c \
 	   ft_arrow.c \
 	   ft_draw_arrow.c \
 	   raycast.c \
-	   raycast_setup.c
-#	 move.c
+	   raycast_setup.c \
+	   repeat.c \
+	   destroy_elems.c \
+	   others.c
 
 SRC = $(addprefix $(C_DIR), $(SRCS))
 
 OBJ = $(SRCS:.c=.o)
 
-INC = -I includes -I libft/
+INC = -I includes -I libft/ -I minilibx_macos/
 
-all : $(LIBMLX) $(NAME)
+all : $(LIBMLX) $(LIBFT) $(NAME)
 
 $(NAME): $(OBJ) $(LIBFT)
-	$(CC) $(MLX) $^ -o $@ $(LIB)
+	$(CC) $(MLX) $(LIB) $^ -o $@
 
 $(LIBFT):
-	make -C libft/
+	@make -C libft/
 
 $(LIBMLX):
-	make -C minilibx_macos/
+	@make -C minilibx_macos/
 
 $(OBJ) : $(SRC)
 	$(CC) $(CFLAGS) $^ $(INC)

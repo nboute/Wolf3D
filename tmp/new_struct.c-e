@@ -15,7 +15,7 @@
 t_mlx		*init_mlx(t_mlx *ptr)
 {
 	if (!ptr)
-		ft_exit(NULL);
+		ft_exit(0);
 	ptr->img = NULL;
 	ptr->height = 0;
 	ptr->width = 0;
@@ -46,7 +46,7 @@ t_map		*new_map(void)
 	t_map	*map;
 
 	if (!(map = (t_map*)malloc(sizeof(t_map))))
-		ft_exit(NULL);
+		ft_exit(0);
 	map->id = 0;
 	map->map = NULL;
 	map->width = 0;
@@ -78,7 +78,7 @@ t_sprite	*add_sprite(t_map *map, int texnum, double x, double y)
 	tmp = map->sprites;
 	if (!(map->sprites =
 				(t_sprite*)malloc(sizeof(t_sprite) * (map->nbspr + 1))))
-		ft_exit(NULL);
+		ft_exit(0);
 	i = 0;
 	while (i < map->nbspr && tmp)
 	{

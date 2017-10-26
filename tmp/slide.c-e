@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/10/17 15:23:20 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/26 19:03:01 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/17 15:24:34 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,18 +66,19 @@ t_map	*slidegen(int width, int height)
 	int		x;
 	int		val[2];
 
+	ft_putendl("generating slide map");
 	srand(time(NULL));
 	if (!(map = new_map()))
-		ft_exit(NULL);
+		ft_exit(0);
 	map->width = width;
 	map->height = height;
 	get_map_textures(2, map);
 	if (!(map->map = (char**)malloc(sizeof(char*) * width)))
-		ft_exit(NULL);
+		ft_exit(0);
 	x = 0;
 	while (x < width)
 		if (!(map->map[x++] = (char*)malloc(sizeof(char) * height)))
-			ft_exit(NULL);
+			ft_exit(0);
 	create_slide(map, val, 0, 0);
 	map->nbspr = 0;
 	map->sprites = NULL;

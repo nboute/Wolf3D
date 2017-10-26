@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/10/16 15:05:09 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/26 16:38:23 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/26 15:05:02 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ int			key_pressed_p2(int key, t_mlx *mlx)
 		}
 	}
 	else if (key == 53)
-		ft_exit(mlx);
+		ft_exit(1);
 	return (0);
 }
 

@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/10/16 16:39:08 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/16 16:43:26 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/25 18:57:09 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,29 +17,29 @@
 
 typedef struct	s_sprinf
 {
-	double		sprX;
-	double		sprY;
-	double		invDet;
-	double		transfX;
-	double		transfY;
-	int			sprscreenX;
-	int			sprHeight;
-	int			sprWidth;
+	double		sprx;
+	double		spry;
+	double		invdet;
+	double		transfx;
+	double		transfy;
+	int			sprscreenx;
+	int			sprheight;
+	int			sprwidth;
 	int			sprid;
-	int			*sprOrd;
-	double		*sprDist;
+	int			*sprord;
+	double		*sprdist;
 }				t_sprinf;
 
 typedef struct	s_flrinf
 {
-	double		distWall;
-	double		distPlayer;
-	double		currDist;
+	double		distwall;
+	double		distplayer;
+	double		currdist;
 	double		weight;
-	double		currFlrX;
-	double		currFlrY;
-	int			flrTexX;
-	int			flrTexY;
+	double		currflrx;
+	double		currflry;
+	int			flrtexx;
+	int			flrtexy;
 }				t_flrinf;
 
 
@@ -48,11 +48,11 @@ void		raycast_dda_alg(t_mlx *mlx, t_vects *v);
 void		raycast_calc_wall(t_mlx *mlx, t_vects *v);
 void		raycast_calc_floor(t_mlx *mlx, t_vects *v);
 void		raycast_calc_sprites(t_mlx * mlx, t_vects *v, t_sprinf *s);
-void		raycast_draw_wall(t_mlx *mlx, t_vects *v, int texNum);
+void		raycast_draw_wall(t_mlx *mlx, t_vects *v, int texnum);
 void		raycast_draw_floor(t_mlx *mlx, t_vects *v,
-		double	floorXWall, double floorYWall);
+		double	floorxwall, double floorywall);
 void		raycast_draw_sprites(t_mlx *mlx, t_vects *v, t_sprinf *s,
 		t_sprtex *spr);
-int		raycast_sprites(t_mlx *mlx, t_vects *v);
+void	raycast_sprites(t_mlx *mlx, t_vects *v, t_sprinf *s);
 
 #endif

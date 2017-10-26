@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/18 17:40:56 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/26 19:04:23 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/26 13:00:54 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,38 @@
 #include <stdlib.h>
 #include "../inc/header.h"
 #include <stdio.h>
+
+int		**load_wall(int wallid)
+{
+	if (wallid == 0)
+		return (bmp_to_array(TEXTURES"brickwall_dark.bmp", 64, 64));
+	else if (wallid == 1)
+		return (bmp_to_array(TEXTURES"slide_block.bmp", 64, 64));
+	else if (wallid == 2)
+		return (bmp_to_array(TEXTURES"warp_maze.bmp", 64, 64));
+	else if (wallid == 3)
+		return (bmp_to_array(TEXTURES"warp_slide.bmp", 64, 64));
+	else if (wallid == 4)
+		return (bmp_to_array(TEXTURES"slide_block_2.bmp", 64, 64));
+	else if (wallid == 5)
+		return (bmp_to_array(TEXTURES"slide_block_3.bmp", 64, 64));
+	else if (wallid == 6)
+		return (bmp_to_array(TEXTURES"slide_block_4.bmp", 64, 64));
+	return (NULL);
+}
+
+int		**load_floor(int flrid)
+{
+	if (flrid == 0)
+		return (bmp_to_array(TEXTURES"gravel.bmp", 64, 64));
+	else if (flrid == 1)
+		return (bmp_to_array(TEXTURES"slide_floor.bmp", 64, 64));
+	else if (flrid == 2)
+		return (bmp_to_array(TEXTURES"brickfloor.bmp", 64, 64));
+	else if (flrid == 3)
+		return (bmp_to_array(TEXTURES"red_dall.bmp", 64, 64));
+	return (NULL);
+}
 
 int		**load_sprite(int texid)
 {
@@ -57,18 +89,20 @@ void	load_textures(char **textnames, t_map *map, int *spralphas)
 {
 	int	i;
 
+	ft_putendl("loading textures...");
 	if (map->nbwalls)
 		if (!(map->walls = (int***)malloc(sizeof(int**) * map->nbwalls)))
-			ft_exit(NULL);
+			ft_exit(0);
 	if (map->nbfloors)
 		if (!(map->floors = (int***)malloc(sizeof(int**) * map->nbfloors)))
-			ft_exit(NULL);
+			ft_exit(0);
 	if (map->nbsprites)
 		if (!(map->sprtex = (t_sprtex*)malloc(sizeof(t_sprtex)
 						* map->nbsprites)))
-			ft_exit(NULL);
+			ft_exit(0);
 	load_textures_p2(textnames, map, spralphas, -1);
 	i = 0;
 	while (textnames[i])
 		ft_strdel(&textnames[i++]);
+	ft_putendl("textures loaded");
 }

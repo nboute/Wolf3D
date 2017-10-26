@@ -54,7 +54,7 @@ int		***ft_arrow(void)
 	int	***arrow;
 
 	if (!(arrow = (int***)malloc(sizeof(int**) * 8)))
-		ft_exit(NULL);
+		ft_exit(0);
 	arrow[6] = bmp_to_array(TEXTURES"arrow.bmp", 64, 64);
 	arrow[7] = bmp_to_array(TEXTURES"arrow_ul.bmp", 64, 64);
 	arrow[0] = ft_rotate_2d(arrow[6], 64, 270);

@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/12 15:11:00 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/26 19:02:09 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/25 21:31:58 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,13 @@ void				read_data(int fd, t_bmp_hd *head, t_bmp_if *inf)
 
 	buff = (char*)malloc(sizeof(char) * 41);
 	if ((ret = read(fd, buff, 14)) != 14)
-		ft_exit(NULL);
+		ft_exit(0);
 	head->type = *(unsigned short*)buff;
 	head->size = *(unsigned int*)(buff + 2);
 	head->res1 = *(unsigned short*)(buff + 6);
 	head->res1 = *(unsigned short*)(buff + 8);
 	if ((ret = read(fd, buff, 40)) != 40)
-		ft_exit(NULL);
+		ft_exit(0);
 	inf->size = *(unsigned int*)(buff);
 	inf->height = *(int*)(buff + 4);
 	inf->width = *(int*)(buff + 8);
@@ -54,15 +54,15 @@ int					**get_texture(int fd, int **texture, t_bmp_if *inf)
 	y = 0;
 	while (y < inf->width)
 		if (!(texture[y++] = (int*)malloc(sizeof(int) * inf->height)))
-			ft_exit(NULL);
+			ft_exit(0);
 	y = inf->width;
 	if (!(buff = (char*)malloc(((inf->bits / 8) * (inf->height) + 1))))
-		ft_exit(NULL);
+		ft_exit(0);
 	while (--y >= 0 && i < inf->imgsize)
 	{
 		x = -1;
 		if ((read(fd, buff, (inf->bits * inf->height) / 8)) <= 0)
-			ft_exit(NULL);
+			ft_exit(0);
 		while (++x < inf->height)
 			texture[y][x] = (buff[x * 3] + (buff[x * 3 + 1] << 8) +
 					(buff[x * 3 + 2] << 16)) & 0x00FFFFFF;
@@ -80,18 +80,18 @@ int					**bmp_to_array(char *name, int width, int height)
 	t_bmp_if		inf;
 	int				**texture;
 
+	ft_putendl(name);
 	if ((fd = open(name, O_RDONLY)) <= 1)
-		ft_exit(NULL);
+		ft_exit(0);
 	read_data(fd, &head, &inf);
+	width = 0;
+	height = 0;
 	if (!(buff = malloc(sizeof(char) * (4 * inf.nbcols + 1))))
-		ft_exit(NULL);
+		ft_exit(0);
 	if (inf.nbcols)
 		read(fd, buff, 4 * inf.nbcols);
 	if (!(texture = (int**)malloc(sizeof(int*) * inf.width)))
-		ft_exit(NULL);
+		ft_exit(0);
 	ft_strdel(&buff);
-	texture = get_texture(fd, texture, &inf);
-	if (inf.width != width || inf.height != height || !texture)
-		ft_exit(NULL);
-	return (texture);
+	return (get_texture(fd, texture, &inf));
 }

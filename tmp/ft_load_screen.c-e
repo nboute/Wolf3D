@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/24 20:07:40 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/26 19:04:35 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/26 16:28:06 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,9 +64,9 @@ void		ft_load_screen(t_mlx *mlx)
 	int		i[2];
 	int		col;
 
+	ft_putendl("loading screen");
 	mlx->loading = 1;
-	if (!(text = bmp_to_array(TEXTURES"youdied_v2.bmp", 200, 1200)))
-		ft_exit(NULL);
+	text = bmp_to_array(TEXTURES"youdied_v2.bmp", 200, 1200);
 	i[0] = -1;
 	while (++i[0] < 200)
 	{

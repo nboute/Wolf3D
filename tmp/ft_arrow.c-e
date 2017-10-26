@@ -92,13 +92,13 @@ int		**ft_rotate_2d(int **src, int size, int angle)
 
 	i = -1;
 	if (!(dest = (int**)malloc(sizeof(int*) * size)))
-		ft_exit(NULL);
+		ft_exit(0);
 	if (!(tmp = (int**)malloc(sizeof(int*) * size)))
-		ft_exit(NULL);
+		ft_exit(0);
 	while (++i < size)
 		if (!(tmp[i] = (int*)malloc(sizeof(int) * size)) ||
 				!(dest[i] = (int*)malloc(sizeof(int) * size)))
-			ft_exit(NULL);
+			ft_exit(0);
 	if (angle == 90)
 		ft_transpose_square_2d_matrix(tmp, src, size);
 	else if (angle == 180)

@@ -99,9 +99,9 @@ void			order_sprites(t_mlx *mlx, t_sprinf *s)
 
 	i = -1;
 	if (!(s->sprord = (int*)malloc(sizeof(int) * mlx->map->nbtextures)))
-		ft_exit(NULL);
+		ft_exit(0);
 	if (!(s->sprdist = (double*)malloc(sizeof(double) * mlx->map->nbtextures)))
-		ft_exit(NULL);
+		ft_exit(0);
 	while (++i < mlx->map->nbspr)
 	{
 		s->sprord[i] = i;

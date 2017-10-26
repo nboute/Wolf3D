@@ -38,12 +38,12 @@ void		read_inf_p2(int lines, char **tab, t_map *map)
 	map->nbfloors = ft_atoi(tab[2 + map->nbwalls]);
 	if (map->nbwalls <= 0 || map->nbfloors <= 0 ||
 			map->nbwalls >= map->nbtextures || map->nbfloors >= map->nbtextures)
-		ft_exit(NULL);
+		ft_exit(0);
 	if (map->nbwalls + map->nbfloors + 3 < lines)
 		map->nbsprites = ft_atoi(tab[3 + map->nbwalls + map->nbfloors]);
 	if (map->nbsprites)
 		if (!(spralphas = (int*)malloc(sizeof(int) * map->nbsprites)))
-			ft_exit(NULL);
+			ft_exit(0);
 	load_textures(tab, map, spralphas);
 	i = 0;
 	while (tab[i])
@@ -58,7 +58,7 @@ int			try_open(char *filename)
 
 	fd = open(filename, O_RDONLY);
 	if (fd <= 0)
-		ft_exit(NULL);
+		ft_exit(0);
 	return (fd);
 }
 
@@ -70,16 +70,16 @@ void		read_inf(char *str, t_map *map)
 	char	**tab;
 
 	if (!str)
-		ft_exit(NULL);
+		ft_exit(0);
 	str = ft_strjoinn(DESC, str, ft_strclen(str, '\n'));
 	fd = try_open(str);
 	ft_strdel(&str);
 	if ((i = read(fd, buff, 2047)) <= 0)
-		ft_exit(NULL);
+		ft_exit(0);
 	close(fd);
 	buff[i] = '\0';
 	if (!(tab = ft_strsplit(buff, '\n')))
-		ft_exit(NULL);
+		ft_exit(0);
 	i = 0;
 	while (tab[i])
 		i++;
@@ -88,7 +88,7 @@ void		read_inf(char *str, t_map *map)
 	if (map->nbtextures + 3 <= i && map->nbtextures > 1)
 		read_inf_p2(i, tab, map);
 	else
-		ft_exit(NULL);
+		ft_exit(0);
 }
 
 /*
@@ -104,14 +104,14 @@ void		get_map_textures(unsigned short mapid, t_map *map)
 	int		vals[3];
 
 	if (!(buff = (char*)malloc(sizeof(char) * 2048)))
-		ft_exit(NULL);
+		ft_exit(0);
 	vals[0] = try_open(DESC"maps.inf");
 	vals[1] = read(vals[0], buff, 2047);
 	buff[vals[1]] = '\0';
 	vals[2] = ft_atoi(buff);
 	close(vals[0]);
 	if (mapid >= vals[2] || mapid < 0)
-		ft_exit(NULL);
+		ft_exit(0);
 	vals[1] = 0;
 	ptr = buff;
 	while (ptr && vals[1] <= vals[2] && vals[1] <= mapid)

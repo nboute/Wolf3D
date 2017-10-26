@@ -96,7 +96,7 @@ t_map		*mazegen_p2(int size, int out, t_map *maze)
 	while (++x < size)
 	{
 		if (!(maze->map[x] = (char*)malloc(sizeof(char) * size)))
-			ft_exit(NULL);
+			ft_exit(0);
 		y = -1;
 		while (++y < size)
 		{
@@ -118,9 +118,9 @@ t_map		*mazegen(int size, int out)
 
 	setlocale(LC_ALL, "");
 	if (!(maze = new_map()))
-		ft_exit(NULL);
+		ft_exit(0);
 	if (!(maze->map = (char**)malloc(sizeof(char*) * size)))
-		ft_exit(NULL);
+		ft_exit(0);
 	get_map_textures(1, maze);
 	srand(time(NULL));
 	maze->height = size;
