@@ -6,7 +6,7 @@
 #    By: nboute <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/01/04 20:02:22 by nboute            #+#    #+#              #
-#    Updated: 2017/10/26 21:14:02 by nboute           ###   ########.fr        #
+#    Updated: 2017/10/26 22:56:47 by nboute           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,6 @@ LIBFT = libft/libft.a
 MLX = -L ./minilibx_macos -lmlx -framework OpenGL -framework AppKit
 
 LIBMLX = minilibx_macos/mlx.a
-
 
 PTHREAD = -lpthread -D_REENTRANT
 
@@ -63,7 +62,7 @@ INC = -I includes -I libft/ -I minilibx_macos/
 all : $(LIBMLX) $(LIBFT) $(NAME)
 
 $(NAME): $(OBJ) $(LIBFT)
-	$(CC) $(MLX) $(LIB) $^ -o $@
+	$(CC) -fsanitize=address $(MLX) $(LIB) $^ -o $@
 
 $(LIBFT):
 	@make -C libft/

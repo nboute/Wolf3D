@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/12 15:11:00 by nboute            #+#    #+#             */
-/*   Updated: 2017/10/26 22:45:40 by nboute           ###   ########.fr       */
+/*   Updated: 2017/10/26 23:09:44 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,8 @@ int					**bmp_to_array(char *name, int width, int height)
 	if ((fd = open(name, O_RDONLY)) <= 1)
 		ft_exit(NULL);
 	read_data(fd, &head, &inf);
+	if (inf.width != width || inf.height != height)
+		ft_exit(NULL);
 	if (!(buff = malloc(sizeof(char) * (4 * inf.nbcols + 1))))
 		ft_exit(NULL);
 	if (inf.nbcols)
@@ -90,7 +92,7 @@ int					**bmp_to_array(char *name, int width, int height)
 		ft_exit(NULL);
 	ft_strdel(&buff);
 	texture = get_texture(fd, texture, &inf);
-	if (inf.width != width || inf.height != height || !texture)
+	if (!texture)
 		ft_exit(NULL);
 	return (texture);
 }
