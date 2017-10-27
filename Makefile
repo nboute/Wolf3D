@@ -6,7 +6,7 @@
 #    By: nboute <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/01/04 20:02:22 by nboute            #+#    #+#              #
-#    Updated: 2017/10/26 22:56:47 by nboute           ###   ########.fr        #
+#    Updated: 2017/10/27 13:44:15 by nboute           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -62,7 +62,7 @@ INC = -I includes -I libft/ -I minilibx_macos/
 all : $(LIBMLX) $(LIBFT) $(NAME)
 
 $(NAME): $(OBJ) $(LIBFT)
-	$(CC) -fsanitize=address $(MLX) $(LIB) $^ -o $@
+	$(CC) $(MLX) $(LIB) $^ -o $@
 
 $(LIBFT):
 	@make -C libft/
